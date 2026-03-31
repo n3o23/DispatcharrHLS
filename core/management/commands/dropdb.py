@@ -1,5 +1,6 @@
 import sys
 import psycopg2
+from psycopg2 import sql
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import connection
@@ -41,9 +42,9 @@ class Command(BaseCommand):
             conn.autocommit = True
             cur = conn.cursor()
             self.stdout.write(f"Dropping database '{db_name}'...")
-            cur.execute(f"DROP DATABASE IF EXISTS {db_name};")
+            cur.execute(sql.SQL("DROP DATABASE IF EXISTS {}").format(sql.Identifier(db_name)))
             self.stdout.write(f"Creating database '{db_name}'...")
-            cur.execute(f"CREATE DATABASE {db_name};")
+            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
             cur.close()
             conn.close()
             self.stdout.write(self.style.SUCCESS(f"Database '{db_name}' has been dropped and recreated."))

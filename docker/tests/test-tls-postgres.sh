@@ -97,7 +97,7 @@ fresh_volume() {
 }
 
 cleanup_scenario() {
-    if [ "$KEEP_ON_FAIL" = true ] && [ ${#ERRORS[@]} -gt 0 ]; then
+    if [ "$KEEP_ON_FAIL" = true ] && [ "$FAIL" -gt "${SCENARIO_FAIL_BEFORE:-0}" ]; then
         log_info "Keeping resources for debugging (--keep-on-fail)"
         CLEANUP_ITEMS=()
         return
@@ -114,7 +114,7 @@ cleanup_scenario() {
     CLEANUP_ITEMS=()
 }
 
-trap 'cleanup_scenario' EXIT
+trap 'cleanup_scenario; [ -n "$CERT_DIR" ] && rm -rf "$CERT_DIR"' EXIT
 
 wait_for_ready() {
     local name="$1"

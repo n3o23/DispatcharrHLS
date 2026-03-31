@@ -51,7 +51,9 @@ def _get_pg_env() -> dict:
         "sslcert": "PGSSLCERT",
         "sslkey": "PGSSLKEY",
     }
+    # Always strip inherited PGSSL* vars first, then set only what is explicitly configured
     for opt_key, env_key in _ssl_env_map.items():
+        env.pop(env_key, None)
         value = options.get(opt_key)
         if value:
             env[env_key] = value

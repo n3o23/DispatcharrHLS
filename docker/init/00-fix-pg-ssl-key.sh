@@ -11,7 +11,7 @@
 #
 # Usage: source this script with FIXED_KEY_PATH set to the destination.
 #   FIXED_KEY_PATH="/data/.pg-client.key"
-#   . /app/docker/init/fix-pg-ssl-key.sh
+#   . /app/docker/init/00-fix-pg-ssl-key.sh
 #
 # After sourcing, POSTGRES_SSL_KEY is updated to the fixed path if a copy
 # was needed. The caller is responsible for propagating the new value to

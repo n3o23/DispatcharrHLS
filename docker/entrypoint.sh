@@ -31,8 +31,9 @@ echo_with_timestamp() {
 export POSTGRES_DB=${POSTGRES_DB:-dispatcharr}
 export POSTGRES_USER=${POSTGRES_USER:-dispatch}
 # AIO mode: default to 'secret' for internal DB.
-# Modular mode: no default — cert-only auth (mTLS) uses no password.
-if [[ "${DISPATCHARR_ENV:-}" == "modular" ]]; then
+# Modular mode + TLS: no default — cert-only auth (mTLS) uses no password.
+# Modular mode + no TLS: preserve 'secret' default for backward compatibility.
+if [[ "${DISPATCHARR_ENV:-}" == "modular" && "${POSTGRES_SSL:-}" == "true" ]]; then
     export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
 else
     export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-secret}"
