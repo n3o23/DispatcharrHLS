@@ -114,7 +114,7 @@ def _open_xmltv_file(file_path: str):
         return f
 
     # Insert the DOCTYPE after the XML declaration if one is present.
-    stripped = start.lstrip()
+    stripped = start.lstrip(b'\xef\xbb\xbf').lstrip()
     if stripped.startswith(b'<?xml'):
         decl_end = start.find(b'?>')
         if decl_end >= 0:

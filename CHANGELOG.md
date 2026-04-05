@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed EPG sources that emit a UTF-8 BOM (e.g. ErsatzTV, EPGShare, WebGrab+Plus) parsing 0 channels and 0 programmes after the HTML entity fix introduced in v0.22.0. `bytes.lstrip()` only strips ASCII whitespace, leaving the three BOM bytes (`EF BB BF`) in place, so `stripped.startswith(b'<?xml')` returned `False`. The function fell through to the no-declaration branch and prepended the HTML entity DOCTYPE block _before_ the BOM and XML declaration, producing invalid XML that lxml silently discarded under `recover=True`. Fixed by stripping the BOM explicitly before the whitespace strip: `start.lstrip(b'\xef\xbb\xbf').lstrip()`. BOM-free files are unaffected. (Closes #1173) — Thanks [@dwot](https://github.com/dwot) for the fix!
+
 ## [0.22.0] - 2026-04-01
 
 ### Security
