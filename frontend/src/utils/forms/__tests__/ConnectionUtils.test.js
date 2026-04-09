@@ -73,7 +73,9 @@ describe('ConnectionUtils', () => {
     it('calls API.createConnectIntegration with the correct payload', async () => {
       const values = makeValues();
       const config = { url: 'https://example.com/hook' };
-      vi.mocked(API.createConnectIntegration).mockResolvedValue({ id: 'new-1' });
+      vi.mocked(API.createConnectIntegration).mockResolvedValue({
+        id: 'new-1',
+      });
 
       await createConnectIntegration(values, config);
 
@@ -86,14 +88,20 @@ describe('ConnectionUtils', () => {
     });
 
     it('returns the API response', async () => {
-      vi.mocked(API.createConnectIntegration).mockResolvedValue({ id: 'new-1' });
+      vi.mocked(API.createConnectIntegration).mockResolvedValue({
+        id: 'new-1',
+      });
       const result = await createConnectIntegration(makeValues(), {});
       expect(result).toEqual({ id: 'new-1' });
     });
 
     it('propagates API errors', async () => {
-      vi.mocked(API.createConnectIntegration).mockRejectedValue(new Error('Network error'));
-      await expect(createConnectIntegration(makeValues(), {})).rejects.toThrow('Network error');
+      vi.mocked(API.createConnectIntegration).mockRejectedValue(
+        new Error('Network error')
+      );
+      await expect(createConnectIntegration(makeValues(), {})).rejects.toThrow(
+        'Network error'
+      );
     });
   });
 
@@ -104,7 +112,9 @@ describe('ConnectionUtils', () => {
       const connection = makeConnection();
       const values = makeValues();
       const config = { url: 'https://example.com/hook' };
-      vi.mocked(API.updateConnectIntegration).mockResolvedValue({ id: 'conn-1' });
+      vi.mocked(API.updateConnectIntegration).mockResolvedValue({
+        id: 'conn-1',
+      });
 
       await updateConnectIntegration(connection, values, config);
 
@@ -117,13 +127,22 @@ describe('ConnectionUtils', () => {
     });
 
     it('returns the API response', async () => {
-      vi.mocked(API.updateConnectIntegration).mockResolvedValue({ id: 'conn-1', name: 'Updated' });
-      const result = await updateConnectIntegration(makeConnection(), makeValues(), {});
+      vi.mocked(API.updateConnectIntegration).mockResolvedValue({
+        id: 'conn-1',
+        name: 'Updated',
+      });
+      const result = await updateConnectIntegration(
+        makeConnection(),
+        makeValues(),
+        {}
+      );
       expect(result).toEqual({ id: 'conn-1', name: 'Updated' });
     });
 
     it('propagates API errors', async () => {
-      vi.mocked(API.updateConnectIntegration).mockRejectedValue(new Error('Server error'));
+      vi.mocked(API.updateConnectIntegration).mockRejectedValue(
+        new Error('Server error')
+      );
       await expect(
         updateConnectIntegration(makeConnection(), makeValues(), {})
       ).rejects.toThrow('Server error');
@@ -135,7 +154,9 @@ describe('ConnectionUtils', () => {
   describe('setConnectSubscriptions', () => {
     it('calls API.setConnectSubscriptions with connection.id and subs', async () => {
       const connection = makeConnection();
-      const subs = [{ event: 'channel_added', enabled: true, payload_template: null }];
+      const subs = [
+        { event: 'channel_added', enabled: true, payload_template: null },
+      ];
       vi.mocked(API.setConnectSubscriptions).mockResolvedValue(undefined);
 
       await setConnectSubscriptions(connection, subs);
@@ -144,8 +165,12 @@ describe('ConnectionUtils', () => {
     });
 
     it('propagates API errors', async () => {
-      vi.mocked(API.setConnectSubscriptions).mockRejectedValue(new Error('Failed'));
-      await expect(setConnectSubscriptions(makeConnection(), [])).rejects.toThrow('Failed');
+      vi.mocked(API.setConnectSubscriptions).mockRejectedValue(
+        new Error('Failed')
+      );
+      await expect(
+        setConnectSubscriptions(makeConnection(), [])
+      ).rejects.toThrow('Failed');
     });
   });
 
@@ -154,12 +179,20 @@ describe('ConnectionUtils', () => {
   describe('buildConfig', () => {
     describe('webhook type', () => {
       it('returns config with url only when no headers are provided', () => {
-        const values = makeValues({ type: 'webhook', url: 'https://example.com/hook' });
-        expect(buildConfig(values, [])).toEqual({ url: 'https://example.com/hook' });
+        const values = makeValues({
+          type: 'webhook',
+          url: 'https://example.com/hook',
+        });
+        expect(buildConfig(values, [])).toEqual({
+          url: 'https://example.com/hook',
+        });
       });
 
       it('includes headers when non-empty key/value pairs are present', () => {
-        const values = makeValues({ type: 'webhook', url: 'https://example.com/hook' });
+        const values = makeValues({
+          type: 'webhook',
+          url: 'https://example.com/hook',
+        });
         const headers = [{ key: 'Authorization', value: 'Bearer token' }];
         expect(buildConfig(values, headers)).toEqual({
           url: 'https://example.com/hook',
@@ -168,7 +201,10 @@ describe('ConnectionUtils', () => {
       });
 
       it('omits headers with blank keys', () => {
-        const values = makeValues({ type: 'webhook', url: 'https://example.com/hook' });
+        const values = makeValues({
+          type: 'webhook',
+          url: 'https://example.com/hook',
+        });
         const headers = [
           { key: '', value: 'should-be-ignored' },
           { key: '   ', value: 'also-ignored' },
@@ -181,14 +217,20 @@ describe('ConnectionUtils', () => {
       });
 
       it('omits headers property entirely when all keys are blank', () => {
-        const values = makeValues({ type: 'webhook', url: 'https://example.com/hook' });
+        const values = makeValues({
+          type: 'webhook',
+          url: 'https://example.com/hook',
+        });
         const headers = [{ key: '', value: 'ignored' }];
         const config = buildConfig(values, headers);
         expect(config).not.toHaveProperty('headers');
       });
 
       it('supports multiple headers', () => {
-        const values = makeValues({ type: 'webhook', url: 'https://example.com/hook' });
+        const values = makeValues({
+          type: 'webhook',
+          url: 'https://example.com/hook',
+        });
         const headers = [
           { key: 'X-One', value: '1' },
           { key: 'X-Two', value: '2' },
@@ -202,12 +244,20 @@ describe('ConnectionUtils', () => {
 
     describe('script type', () => {
       it('returns config with path from script_path', () => {
-        const values = makeValues({ type: 'script', script_path: '/usr/local/bin/notify.sh' });
-        expect(buildConfig(values, [])).toEqual({ path: '/usr/local/bin/notify.sh' });
+        const values = makeValues({
+          type: 'script',
+          script_path: '/usr/local/bin/notify.sh',
+        });
+        expect(buildConfig(values, [])).toEqual({
+          path: '/usr/local/bin/notify.sh',
+        });
       });
 
       it('ignores headers for script type', () => {
-        const values = makeValues({ type: 'script', script_path: '/usr/bin/run.sh' });
+        const values = makeValues({
+          type: 'script',
+          script_path: '/usr/bin/run.sh',
+        });
         const headers = [{ key: 'Authorization', value: 'Bearer token' }];
         const config = buildConfig(values, headers);
         expect(config).not.toHaveProperty('headers');
@@ -262,20 +312,31 @@ describe('ConnectionUtils', () => {
   describe('parseApiError', () => {
     it('returns message when error has no body', () => {
       const error = { message: 'Network failure' };
-      expect(parseApiError(error)).toEqual({ fieldErrors: {}, apiError: 'Network failure' });
+      expect(parseApiError(error)).toEqual({
+        fieldErrors: {},
+        apiError: 'Network failure',
+      });
     });
 
     it('returns "Unknown error" when error has no body and no message', () => {
-      expect(parseApiError({})).toEqual({ fieldErrors: {}, apiError: 'Unknown error' });
+      expect(parseApiError({})).toEqual({
+        fieldErrors: {},
+        apiError: 'Unknown error',
+      });
     });
 
     it('returns message when body is a string (not an object)', () => {
       const error = { body: 'Bad Request', message: 'HTTP 400' };
-      expect(parseApiError(error)).toEqual({ fieldErrors: {}, apiError: 'HTTP 400' });
+      expect(parseApiError(error)).toEqual({
+        fieldErrors: {},
+        apiError: 'HTTP 400',
+      });
     });
 
     it('extracts known field errors from body', () => {
-      const error = { body: { name: 'This field is required.', type: 'Invalid choice.' } };
+      const error = {
+        body: { name: 'This field is required.', type: 'Invalid choice.' },
+      };
       const { fieldErrors } = parseApiError(error);
       expect(fieldErrors).toEqual({
         name: 'This field is required.',
@@ -302,7 +363,9 @@ describe('ConnectionUtils', () => {
     });
 
     it('prefers non_field_errors over detail', () => {
-      const error = { body: { non_field_errors: 'NF error', detail: 'Detail error' } };
+      const error = {
+        body: { non_field_errors: 'NF error', detail: 'Detail error' },
+      };
       const { apiError } = parseApiError(error);
       expect(apiError).toBe('NF error');
     });
@@ -320,11 +383,17 @@ describe('ConnectionUtils', () => {
     });
 
     it('handles null error gracefully', () => {
-      expect(parseApiError(null)).toEqual({ fieldErrors: {}, apiError: 'Unknown error' });
+      expect(parseApiError(null)).toEqual({
+        fieldErrors: {},
+        apiError: 'Unknown error',
+      });
     });
 
     it('handles undefined error gracefully', () => {
-      expect(parseApiError(undefined)).toEqual({ fieldErrors: {}, apiError: 'Unknown error' });
+      expect(parseApiError(undefined)).toEqual({
+        fieldErrors: {},
+        apiError: 'Unknown error',
+      });
     });
   });
 });

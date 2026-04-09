@@ -57,12 +57,25 @@ vi.mock('../ChannelGroup', () => ({
 }));
 
 vi.mock('../../ConfirmationDialog', () => ({
-  default: ({ opened, onConfirm, onClose, title, confirmLabel, cancelLabel, loading, message }) =>
+  default: ({
+    opened,
+    onConfirm,
+    onClose,
+    title,
+    confirmLabel,
+    cancelLabel,
+    loading,
+    message,
+  }) =>
     opened ? (
       <div data-testid="confirmation-dialog">
         <div data-testid="dialog-title">{title}</div>
         <div data-testid="dialog-message">{message}</div>
-        <button data-testid="dialog-confirm" onClick={onConfirm} disabled={loading}>
+        <button
+          data-testid="dialog-confirm"
+          onClick={onConfirm}
+          disabled={loading}
+        >
           {confirmLabel}
         </button>
         <button data-testid="dialog-cancel" onClick={onClose}>
@@ -73,7 +86,9 @@ vi.mock('../../ConfirmationDialog', () => ({
 }));
 
 vi.mock('../../LazyLogo', () => ({
-  default: ({ src, alt }) => <img src={src} alt={alt} data-testid="lazy-logo" />,
+  default: ({ src, alt }) => (
+    <img src={src} alt={alt} data-testid="lazy-logo" />
+  ),
 }));
 
 vi.mock('../../../images/logo.png', () => ({ default: 'default-logo.png' }));
@@ -104,14 +119,20 @@ vi.mock('@mantine/core', async () => ({
     opened ? (
       <div data-testid="modal">
         <div data-testid="modal-title">{title}</div>
-        <button data-testid="modal-close" onClick={onClose}>×</button>
+        <button data-testid="modal-close" onClick={onClose}>
+          ×
+        </button>
         {children}
       </div>
     ) : null,
   Paper: ({ children, style }) => <div style={style}>{children}</div>,
   Popover: ({ children }) => <div data-testid="popover">{children}</div>,
-  PopoverDropdown: ({ children }) => <div data-testid="popover-dropdown">{children}</div>,
-  PopoverTarget: ({ children }) => <div data-testid="popover-target">{children}</div>,
+  PopoverDropdown: ({ children }) => (
+    <div data-testid="popover-dropdown">{children}</div>
+  ),
+  PopoverTarget: ({ children }) => (
+    <div data-testid="popover-target">{children}</div>
+  ),
   ScrollArea: ({ children, h }) => <div style={{ height: h }}>{children}</div>,
   Select: ({ label, data, value, onChange, disabled }) => (
     <select
@@ -124,13 +145,19 @@ vi.mock('@mantine/core', async () => ({
       {(data ?? []).map((opt) => {
         const val = typeof opt === 'string' ? opt : opt.value;
         const lbl = typeof opt === 'string' ? opt : opt.label;
-        return <option key={val} value={val}>{lbl}</option>;
+        return (
+          <option key={val} value={val}>
+            {lbl}
+          </option>
+        );
       })}
     </select>
   ),
   Stack: ({ children }) => <div>{children}</div>,
   Text: ({ children, size, c }) => (
-    <span data-size={size} data-color={c}>{children}</span>
+    <span data-size={size} data-color={c}>
+      {children}
+    </span>
   ),
   TextInput: ({ label, placeholder, value, onChange, disabled }) => (
     <input
@@ -144,7 +171,9 @@ vi.mock('@mantine/core', async () => ({
   ),
   Tooltip: ({ children, label }) => <div data-tooltip={label}>{children}</div>,
   UnstyledButton: ({ children, onClick, style }) => (
-    <button onClick={onClick} style={style}>{children}</button>
+    <button onClick={onClick} style={style}>
+      {children}
+    </button>
   ),
   useMantineTheme: () => ({ tailwind: { green: { 5: '#38a169' } } }),
 }));
@@ -246,7 +275,8 @@ const setupMocks = (overrides = {}) => {
 
   vi.mocked(useWarningsStore).mockImplementation((sel) =>
     sel({
-      isWarningSuppressed: overrides.isWarningSuppressed ?? vi.fn().mockReturnValue(false),
+      isWarningSuppressed:
+        overrides.isWarningSuppressed ?? vi.fn().mockReturnValue(false),
       suppressWarning: vi.fn(),
     })
   );
@@ -269,14 +299,24 @@ const setupMocks = (overrides = {}) => {
   });
 
   vi.mocked(ChannelBatchUtils.computeRegexPreview).mockReturnValue([]);
-  vi.mocked(ChannelBatchUtils.buildSubmitValues).mockReturnValue({ stream_profile_id: '1' });
+  vi.mocked(ChannelBatchUtils.buildSubmitValues).mockReturnValue({
+    stream_profile_id: '1',
+  });
   vi.mocked(ChannelBatchUtils.buildEpgAssociations).mockResolvedValue(null);
   vi.mocked(ChannelBatchUtils.updateChannels).mockResolvedValue(undefined);
-  vi.mocked(ChannelBatchUtils.bulkRegexRenameChannels).mockResolvedValue(undefined);
+  vi.mocked(ChannelBatchUtils.bulkRegexRenameChannels).mockResolvedValue(
+    undefined
+  );
   vi.mocked(ChannelBatchUtils.batchSetEPG).mockResolvedValue(undefined);
-  vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockResolvedValue(undefined);
-  vi.mocked(ChannelBatchUtils.setChannelLogosFromEpg).mockResolvedValue(undefined);
-  vi.mocked(ChannelBatchUtils.setChannelTvgIdsFromEpg).mockResolvedValue(undefined);
+  vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockResolvedValue(
+    undefined
+  );
+  vi.mocked(ChannelBatchUtils.setChannelLogosFromEpg).mockResolvedValue(
+    undefined
+  );
+  vi.mocked(ChannelBatchUtils.setChannelTvgIdsFromEpg).mockResolvedValue(
+    undefined
+  );
   vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(null);
   vi.mocked(ChannelBatchUtils.getLogoChange).mockReturnValue(null);
   vi.mocked(ChannelBatchUtils.getStreamProfileChange).mockReturnValue(null);
@@ -353,12 +393,16 @@ describe('ChannelBatchForm', () => {
       expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({ color: 'orange' })
       );
-      expect(screen.queryByTestId('confirmation-dialog')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('confirmation-dialog')
+      ).not.toBeInTheDocument();
     });
 
     it('opens confirmation dialog when at least one change is present', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
@@ -371,11 +415,13 @@ describe('ChannelBatchForm', () => {
 
   describe('warning suppression', () => {
     it('skips confirmation dialog and calls onSubmit directly when batch-update warning is suppressed', async () => {
-      const isWarningSuppressed = vi.fn().mockImplementation((key) =>
-        key === 'batch-update-channels'
-      );
+      const isWarningSuppressed = vi
+        .fn()
+        .mockImplementation((key) => key === 'batch-update-channels');
       setupMocks({ isWarningSuppressed });
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
       const onClose = vi.fn();
 
       renderForm({ onClose });
@@ -384,7 +430,9 @@ describe('ChannelBatchForm', () => {
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled();
       });
-      expect(screen.queryByTestId('confirmation-dialog')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('confirmation-dialog')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -393,27 +441,33 @@ describe('ChannelBatchForm', () => {
   describe('confirmation dialog', () => {
     it('closes confirmation dialog on cancel', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
       expect(screen.getByTestId('confirmation-dialog')).toBeInTheDocument();
 
       fireEvent.click(screen.getByTestId('dialog-cancel'));
-      expect(screen.queryByTestId('confirmation-dialog')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('confirmation-dialog')
+      ).not.toBeInTheDocument();
     });
 
     it('calls updateChannels on confirm', async () => {
       setupMocks({
         formValues: {
-          stream_profile_id: '1',   // survives: not '-1' or '0', so kept as-is after parseInt...
-          user_level: '-1',         // deleted
-          is_adult: '-1',           // deleted
-          channel_group: '',        // deleted (channel_group key is removed)
-          logo: '',                 // deleted
+          stream_profile_id: '1', // survives: not '-1' or '0', so kept as-is after parseInt...
+          user_level: '-1', // deleted
+          is_adult: '-1', // deleted
+          channel_group: '', // deleted (channel_group key is removed)
+          logo: '', // deleted
         },
       });
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
@@ -429,7 +483,9 @@ describe('ChannelBatchForm', () => {
 
     it('calls requeryChannels after successful submit', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
@@ -442,7 +498,9 @@ describe('ChannelBatchForm', () => {
 
     it('calls onClose after successful submit', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
       const onClose = vi.fn();
 
       renderForm({ onClose });
@@ -477,7 +535,7 @@ describe('ChannelBatchForm', () => {
         expect(ChannelBatchUtils.bulkRegexRenameChannels).toHaveBeenCalledWith(
           CHANNEL_IDS,
           'foo',
-          '',   // regexReplace default is ''
+          '', // regexReplace default is ''
           'g'
         );
       });
@@ -504,20 +562,24 @@ describe('ChannelBatchForm', () => {
 
       fireEvent.click(screen.getByText('Set Names from EPG'));
 
-      expect(screen.getByTestId('dialog-title')).toHaveTextContent('Confirm Set Names from EPG');
+      expect(screen.getByTestId('dialog-title')).toHaveTextContent(
+        'Confirm Set Names from EPG'
+      );
     });
 
     it('skips dialog and executes directly when warning is suppressed', async () => {
-      const isWarningSuppressed = vi.fn().mockImplementation((key) =>
-        key === 'batch-set-names-from-epg'
-      );
+      const isWarningSuppressed = vi
+        .fn()
+        .mockImplementation((key) => key === 'batch-set-names-from-epg');
       setupMocks({ isWarningSuppressed });
 
       renderForm();
       fireEvent.click(screen.getByText('Set Names from EPG'));
 
       await waitFor(() => {
-        expect(ChannelBatchUtils.setChannelNamesFromEpg).toHaveBeenCalledWith(CHANNEL_IDS);
+        expect(ChannelBatchUtils.setChannelNamesFromEpg).toHaveBeenCalledWith(
+          CHANNEL_IDS
+        );
       });
     });
 
@@ -529,7 +591,9 @@ describe('ChannelBatchForm', () => {
       fireEvent.click(screen.getByTestId('dialog-confirm'));
 
       await waitFor(() => {
-        expect(ChannelBatchUtils.setChannelNamesFromEpg).toHaveBeenCalledWith(CHANNEL_IDS);
+        expect(ChannelBatchUtils.setChannelNamesFromEpg).toHaveBeenCalledWith(
+          CHANNEL_IDS
+        );
       });
     });
 
@@ -549,7 +613,9 @@ describe('ChannelBatchForm', () => {
 
     it('shows error notification when setChannelNamesFromEpg rejects', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockRejectedValue(new Error('fail'));
+      vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockRejectedValue(
+        new Error('fail')
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Set Names from EPG'));
@@ -583,7 +649,9 @@ describe('ChannelBatchForm', () => {
 
       fireEvent.click(screen.getByText('Set Logos from EPG'));
 
-      expect(screen.getByTestId('dialog-title')).toHaveTextContent('Confirm Set Logos from EPG');
+      expect(screen.getByTestId('dialog-title')).toHaveTextContent(
+        'Confirm Set Logos from EPG'
+      );
     });
 
     it('calls setChannelLogosFromEpg on confirm', async () => {
@@ -594,13 +662,17 @@ describe('ChannelBatchForm', () => {
       fireEvent.click(screen.getByTestId('dialog-confirm'));
 
       await waitFor(() => {
-        expect(ChannelBatchUtils.setChannelLogosFromEpg).toHaveBeenCalledWith(CHANNEL_IDS);
+        expect(ChannelBatchUtils.setChannelLogosFromEpg).toHaveBeenCalledWith(
+          CHANNEL_IDS
+        );
       });
     });
 
     it('shows error notification when setChannelLogosFromEpg rejects', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.setChannelLogosFromEpg).mockRejectedValue(new Error('fail'));
+      vi.mocked(ChannelBatchUtils.setChannelLogosFromEpg).mockRejectedValue(
+        new Error('fail')
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Set Logos from EPG'));
@@ -634,7 +706,9 @@ describe('ChannelBatchForm', () => {
 
       fireEvent.click(screen.getByText('Set TVG-IDs from EPG'));
 
-      expect(screen.getByTestId('dialog-title')).toHaveTextContent('Confirm Set TVG-IDs from EPG');
+      expect(screen.getByTestId('dialog-title')).toHaveTextContent(
+        'Confirm Set TVG-IDs from EPG'
+      );
     });
 
     it('calls setChannelTvgIdsFromEpg on confirm', async () => {
@@ -645,13 +719,17 @@ describe('ChannelBatchForm', () => {
       fireEvent.click(screen.getByTestId('dialog-confirm'));
 
       await waitFor(() => {
-        expect(ChannelBatchUtils.setChannelTvgIdsFromEpg).toHaveBeenCalledWith(CHANNEL_IDS);
+        expect(ChannelBatchUtils.setChannelTvgIdsFromEpg).toHaveBeenCalledWith(
+          CHANNEL_IDS
+        );
       });
     });
 
     it('shows error notification when setChannelTvgIdsFromEpg rejects', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.setChannelTvgIdsFromEpg).mockRejectedValue(new Error('fail'));
+      vi.mocked(ChannelBatchUtils.setChannelTvgIdsFromEpg).mockRejectedValue(
+        new Error('fail')
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Set TVG-IDs from EPG'));
@@ -672,7 +750,9 @@ describe('ChannelBatchForm', () => {
       setupMocks();
       renderForm();
 
-      fireEvent.click(screen.getAllByTestId('icon-square-plus')[0].closest('button'));
+      fireEvent.click(
+        screen.getAllByTestId('icon-square-plus')[0].closest('button')
+      );
 
       expect(screen.getByTestId('channel-group-form')).toBeInTheDocument();
     });
@@ -681,20 +761,28 @@ describe('ChannelBatchForm', () => {
       setupMocks();
       renderForm();
 
-      fireEvent.click(screen.getAllByTestId('icon-square-plus')[0].closest('button'));
+      fireEvent.click(
+        screen.getAllByTestId('icon-square-plus')[0].closest('button')
+      );
       fireEvent.click(screen.getByText('Save Group'));
 
-      expect(screen.queryByTestId('channel-group-form')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('channel-group-form')
+      ).not.toBeInTheDocument();
     });
 
     it('closes channel group modal without updating selection when cancelled', () => {
       setupMocks();
       renderForm();
 
-      fireEvent.click(screen.getAllByTestId('icon-square-plus')[0].closest('button'));
+      fireEvent.click(
+        screen.getAllByTestId('icon-square-plus')[0].closest('button')
+      );
       fireEvent.click(screen.getByText('Cancel Group'));
 
-      expect(screen.queryByTestId('channel-group-form')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('channel-group-form')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -745,7 +833,9 @@ describe('ChannelBatchForm', () => {
   describe('error resilience', () => {
     it('does not throw when requeryChannels rejects after submit', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
       vi.mocked(requeryChannels).mockRejectedValue(new Error('network'));
 
       renderForm();
@@ -758,7 +848,9 @@ describe('ChannelBatchForm', () => {
 
     it('does not throw when setChannelNamesFromEpg rejects and no channels', async () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockRejectedValue(new Error('fail'));
+      vi.mocked(ChannelBatchUtils.setChannelNamesFromEpg).mockRejectedValue(
+        new Error('fail')
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Set Names from EPG'));
@@ -769,12 +861,14 @@ describe('ChannelBatchForm', () => {
     });
   });
 
-// ── Batch update confirmation message ──────────────────────────────────────
+  // ── Batch update confirmation message ──────────────────────────────────────
 
   describe('batch update confirmation message', () => {
     it('displays the channel count in the confirmation message', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
@@ -784,19 +878,29 @@ describe('ChannelBatchForm', () => {
 
     it('displays a single change line in the confirmation message', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getStreamProfileChange).mockReturnValue('• Stream Profile: HD Profile');
+      vi.mocked(ChannelBatchUtils.getStreamProfileChange).mockReturnValue(
+        '• Stream Profile: HD Profile'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(screen.getByTestId('dialog-message')).toHaveTextContent('• Stream Profile: HD Profile');
+      expect(screen.getByTestId('dialog-message')).toHaveTextContent(
+        '• Stream Profile: HD Profile'
+      );
     });
 
     it('displays multiple change lines when several fields are changed', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
-      vi.mocked(ChannelBatchUtils.getStreamProfileChange).mockReturnValue('• Stream Profile: HD Profile');
-      vi.mocked(ChannelBatchUtils.getUserLevelChange).mockReturnValue('• User Level: Admin');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
+      vi.mocked(ChannelBatchUtils.getStreamProfileChange).mockReturnValue(
+        '• Stream Profile: HD Profile'
+      );
+      vi.mocked(ChannelBatchUtils.getUserLevelChange).mockReturnValue(
+        '• User Level: Admin'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
@@ -825,22 +929,30 @@ describe('ChannelBatchForm', () => {
 
     it('uses "Apply Changes" as the confirm button label', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(screen.getByTestId('dialog-confirm')).toHaveTextContent('Apply Changes');
+      expect(screen.getByTestId('dialog-confirm')).toHaveTextContent(
+        'Apply Changes'
+      );
     });
 
     it('shows "Confirm Batch Update" as the dialog title', () => {
       setupMocks();
-      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue('• Channel Group: Sports');
+      vi.mocked(ChannelBatchUtils.getChannelGroupChange).mockReturnValue(
+        '• Channel Group: Sports'
+      );
 
       renderForm();
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(screen.getByTestId('dialog-title')).toHaveTextContent('Confirm Batch Update');
+      expect(screen.getByTestId('dialog-title')).toHaveTextContent(
+        'Confirm Batch Update'
+      );
     });
   });
 });

@@ -16,7 +16,15 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
-import { AlertTriangle, CheckCircle, Clock, Info, RefreshCw, Users, XCircle, } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Info,
+  RefreshCw,
+  Users,
+  XCircle,
+} from 'lucide-react';
 import usePlaylistsStore from '../../store/playlists';
 import { showNotification } from '../../utils/notificationUtils.js';
 import {

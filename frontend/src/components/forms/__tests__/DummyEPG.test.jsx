@@ -27,58 +27,58 @@ vi.mock('../../../utils/forms/DummyEpgUtils.js', () => ({
     const fill = (tpl) =>
       tpl
         ? Object.entries(allGroups).reduce(
-          (s, [k, v]) => s.replaceAll(`{${k}}`, v),
-          tpl
-        )
+            (s, [k, v]) => s.replaceAll(`{${k}}`, v),
+            tpl
+          )
         : '';
     return {
-      formattedTitle:                fill(templates.titleTemplate),
-      formattedSubtitle:             fill(templates.subtitleTemplate),
-      formattedDescription:          fill(templates.descriptionTemplate),
-      formattedUpcomingTitle:        fill(templates.upcomingTitleTemplate),
-      formattedUpcomingDescription:  fill(templates.upcomingDescriptionTemplate),
-      formattedEndedTitle:           fill(templates.endedTitleTemplate),
-      formattedEndedDescription:     fill(templates.endedDescriptionTemplate),
-      formattedChannelLogoUrl:       fill(templates.channelLogoUrl),
-      formattedProgramPosterUrl:     fill(templates.programPosterUrl),
+      formattedTitle: fill(templates.titleTemplate),
+      formattedSubtitle: fill(templates.subtitleTemplate),
+      formattedDescription: fill(templates.descriptionTemplate),
+      formattedUpcomingTitle: fill(templates.upcomingTitleTemplate),
+      formattedUpcomingDescription: fill(templates.upcomingDescriptionTemplate),
+      formattedEndedTitle: fill(templates.endedTitleTemplate),
+      formattedEndedDescription: fill(templates.endedDescriptionTemplate),
+      formattedChannelLogoUrl: fill(templates.channelLogoUrl),
+      formattedProgramPosterUrl: fill(templates.programPosterUrl),
     };
   }),
   buildCustomProperties: vi.fn((custom = {}) => ({
-    title_pattern:                custom.title_pattern                || '',
-    time_pattern:                 custom.time_pattern                 || '',
-    date_pattern:                 custom.date_pattern                 || '',
-    timezone:                     custom.timezone                     || 'US/Eastern',
-    output_timezone:              custom.output_timezone              || '',
-    program_duration:             custom.program_duration             || 180,
-    sample_title:                 custom.sample_title                 || '',
-    title_template:               custom.title_template               || '',
-    subtitle_template:            custom.subtitle_template            || '',
-    description_template:         custom.description_template         || '',
-    upcoming_title_template:      custom.upcoming_title_template      || '',
-    upcoming_description_template:custom.upcoming_description_template|| '',
-    ended_title_template:         custom.ended_title_template         || '',
-    ended_description_template:   custom.ended_description_template   || '',
-    fallback_title_template:      custom.fallback_title_template      || '',
-    fallback_description_template:custom.fallback_description_template|| '',
-    channel_logo_url:             custom.channel_logo_url             || '',
-    program_poster_url:           custom.program_poster_url           || '',
-    name_source:                  custom.name_source                  || 'channel',
-    stream_index:                 custom.stream_index                 || 1,
-    category:                     custom.category                     || '',
-    include_date:                 custom.include_date                 ?? true,
-    include_live:                 custom.include_live                 ?? false,
-    include_new:                  custom.include_new                  ?? false,
+    title_pattern: custom.title_pattern || '',
+    time_pattern: custom.time_pattern || '',
+    date_pattern: custom.date_pattern || '',
+    timezone: custom.timezone || 'US/Eastern',
+    output_timezone: custom.output_timezone || '',
+    program_duration: custom.program_duration || 180,
+    sample_title: custom.sample_title || '',
+    title_template: custom.title_template || '',
+    subtitle_template: custom.subtitle_template || '',
+    description_template: custom.description_template || '',
+    upcoming_title_template: custom.upcoming_title_template || '',
+    upcoming_description_template: custom.upcoming_description_template || '',
+    ended_title_template: custom.ended_title_template || '',
+    ended_description_template: custom.ended_description_template || '',
+    fallback_title_template: custom.fallback_title_template || '',
+    fallback_description_template: custom.fallback_description_template || '',
+    channel_logo_url: custom.channel_logo_url || '',
+    program_poster_url: custom.program_poster_url || '',
+    name_source: custom.name_source || 'channel',
+    stream_index: custom.stream_index || 1,
+    category: custom.category || '',
+    include_date: custom.include_date ?? true,
+    include_live: custom.include_live ?? false,
+    include_new: custom.include_new ?? false,
   })),
   buildTimePlaceholders: vi.fn((timeGroups) => {
     if (!timeGroups || !timeGroups.hour) return {};
-    const hour   = parseInt(timeGroups.hour,   10);
+    const hour = parseInt(timeGroups.hour, 10);
     const minute = String(timeGroups.minute ?? '00').padStart(2, '0');
-    const ampm   = timeGroups.ampm ? ` ${timeGroups.ampm}` : '';
+    const ampm = timeGroups.ampm ? ` ${timeGroups.ampm}` : '';
     return {
-      starttime:   `${hour}:${minute}${ampm}`,
+      starttime: `${hour}:${minute}${ampm}`,
       starttime24: `${String(hour).padStart(2, '0')}:${minute}`,
-      endtime:     `${(hour + 3) % 24}:${minute}${ampm}`,
-      endtime24:   `${String((hour + 3) % 24).padStart(2, '0')}:${minute}`,
+      endtime: `${(hour + 3) % 24}:${minute}${ampm}`,
+      endtime24: `${String((hour + 3) % 24).padStart(2, '0')}:${minute}`,
     };
   }),
   getDummyEpgFormInitialValues: vi.fn(() => ({
@@ -86,30 +86,30 @@ vi.mock('../../../utils/forms/DummyEpgUtils.js', () => ({
     is_active: true,
     source_type: 'dummy',
     custom_properties: {
-      title_pattern:                '',
-      time_pattern:                 '',
-      date_pattern:                 '',
-      timezone:                     'US/Eastern',
-      output_timezone:              '',
-      program_duration:             180,
-      sample_title:                 '',
-      title_template:               '',
-      subtitle_template:            '',
-      description_template:         '',
-      upcoming_title_template:      '',
-      upcoming_description_template:'',
-      ended_title_template:         '',
-      ended_description_template:   '',
-      fallback_title_template:      '',
-      fallback_description_template:'',
-      channel_logo_url:             '',
-      program_poster_url:           '',
-      name_source:                  'channel',
-      stream_index:                 1,
-      category:                     '',
-      include_date:                 true,
-      include_live:                 false,
-      include_new:                  false,
+      title_pattern: '',
+      time_pattern: '',
+      date_pattern: '',
+      timezone: 'US/Eastern',
+      output_timezone: '',
+      program_duration: 180,
+      sample_title: '',
+      title_template: '',
+      subtitle_template: '',
+      description_template: '',
+      upcoming_title_template: '',
+      upcoming_description_template: '',
+      ended_title_template: '',
+      ended_description_template: '',
+      fallback_title_template: '',
+      fallback_description_template: '',
+      channel_logo_url: '',
+      program_poster_url: '',
+      name_source: 'channel',
+      stream_index: 1,
+      category: '',
+      include_date: true,
+      include_live: false,
+      include_new: false,
     },
   })),
   getTimezones: vi.fn().mockResolvedValue({
@@ -118,19 +118,23 @@ vi.mock('../../../utils/forms/DummyEpgUtils.js', () => ({
   matchPattern: vi.fn((pattern, sample, errorLabel = 'Pattern error') => {
     if (!pattern) return { matched: false, groups: {}, error: null };
     try {
-      const regex  = new RegExp(pattern, 'u');
+      const regex = new RegExp(pattern, 'u');
       const result = regex.exec(sample ?? '');
       if (!result) return { matched: false, groups: {}, error: null };
       const groups = result.groups ?? {};
       return { matched: true, groups, error: null };
     } catch {
-      return { matched: false, groups: {}, error: `${errorLabel}: invalid regex` };
+      return {
+        matched: false,
+        groups: {},
+        error: `${errorLabel}: invalid regex`,
+      };
     }
   }),
   updateEPG: vi.fn(),
-  validateCustomNameSource:    vi.fn(() => null),
-  validateCustomStreamIndex:   vi.fn(() => null),
-  validateCustomTitlePattern:  vi.fn(() => null),
+  validateCustomNameSource: vi.fn(() => null),
+  validateCustomStreamIndex: vi.fn(() => null),
+  validateCustomTitlePattern: vi.fn(() => null),
 }));
 
 // ── Mantine notifications ──────────────────────────────────────────────────────
@@ -141,13 +145,25 @@ vi.mock('@mantine/notifications', () => ({
 // ── Mantine core ───────────────────────────────────────────────────────────────
 vi.mock('@mantine/core', async () => ({
   Accordion: ({ children }) => <div data-testid="accordion">{children}</div>,
-  AccordionControl: ({ children }) => <button data-testid="accordion-control">{children}</button>,
-  AccordionItem: ({ children, value }) => <div data-testid={`accordion-item-${value}`}>{children}</div>,
-  AccordionPanel: ({ children }) => <div data-testid="accordion-panel">{children}</div>,
-  ActionIcon: ({ children, onClick }) => (
-    <button data-testid="action-icon" onClick={onClick}>{children}</button>
+  AccordionControl: ({ children }) => (
+    <button data-testid="accordion-control">{children}</button>
   ),
-  Box: ({ children, mt, style }) => <div style={style} data-mt={mt}>{children}</div>,
+  AccordionItem: ({ children, value }) => (
+    <div data-testid={`accordion-item-${value}`}>{children}</div>
+  ),
+  AccordionPanel: ({ children }) => (
+    <div data-testid="accordion-panel">{children}</div>
+  ),
+  ActionIcon: ({ children, onClick }) => (
+    <button data-testid="action-icon" onClick={onClick}>
+      {children}
+    </button>
+  ),
+  Box: ({ children, mt, style }) => (
+    <div style={style} data-mt={mt}>
+      {children}
+    </div>
+  ),
   Button: ({ children, onClick, disabled, loading, type, color, variant }) => (
     <button
       onClick={onClick}
@@ -177,7 +193,9 @@ vi.mock('@mantine/core', async () => ({
     opened ? (
       <div data-testid="modal">
         <div data-testid="modal-title">{title}</div>
-        <button data-testid="modal-close" onClick={onClose}>×</button>
+        <button data-testid="modal-close" onClick={onClose}>
+          ×
+        </button>
         {children}
       </div>
     ) : null,
@@ -196,7 +214,9 @@ vi.mock('@mantine/core', async () => ({
   ),
   Paper: ({ children }) => <div data-testid="paper">{children}</div>,
   Popover: ({ children }) => <div>{children}</div>,
-  PopoverDropdown: ({ children }) => <div data-testid="popover-dropdown">{children}</div>,
+  PopoverDropdown: ({ children }) => (
+    <div data-testid="popover-dropdown">{children}</div>
+  ),
   PopoverTarget: ({ children }) => <div>{children}</div>,
   Select: ({ label, value, onChange, data, placeholder }) => (
     <label>
@@ -210,14 +230,20 @@ vi.mock('@mantine/core', async () => ({
         {(data || []).map((opt) => {
           const val = typeof opt === 'string' ? opt : opt.value;
           const lab = typeof opt === 'string' ? opt : opt.label;
-          return <option key={val} value={val}>{lab}</option>;
+          return (
+            <option key={val} value={val}>
+              {lab}
+            </option>
+          );
         })}
       </select>
     </label>
   ),
   Stack: ({ children }) => <div>{children}</div>,
   Text: ({ children, size, c, fw, style }) => (
-    <span data-size={size} data-color={c} data-fw={fw} style={style}>{children}</span>
+    <span data-size={size} data-color={c} data-fw={fw} style={style}>
+      {children}
+    </span>
   ),
   Textarea: ({ label, value, onChange, placeholder }) => (
     <label>
@@ -324,7 +350,10 @@ const defaultProps = (overrides = {}) => ({
 describe('DummyEPGForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(DummyEpgUtils.addEPG).mockResolvedValue({ id: 2, name: 'New EPG' });
+    vi.mocked(DummyEpgUtils.addEPG).mockResolvedValue({
+      id: 2,
+      name: 'New EPG',
+    });
     vi.mocked(DummyEpgUtils.updateEPG).mockResolvedValue({});
     vi.mocked(DummyEpgUtils.getTimezones).mockResolvedValue({
       timezones: ['US/Eastern', 'US/Pacific', 'UTC'],
@@ -347,12 +376,16 @@ describe('DummyEPGForm', () => {
 
     it('shows "Add Dummy EPG" title when no epg prop', () => {
       render(<DummyEPGForm {...defaultProps()} />);
-      expect(screen.getByTestId('modal-title')).toHaveTextContent('Create Dummy EPG');
+      expect(screen.getByTestId('modal-title')).toHaveTextContent(
+        'Create Dummy EPG'
+      );
     });
 
     it('shows "Edit Dummy EPG" title when epg prop is provided', () => {
       render(<DummyEPGForm {...defaultProps({ epg: makeEPG() })} />);
-      expect(screen.getByTestId('modal-title')).toHaveTextContent('Edit Dummy EPG');
+      expect(screen.getByTestId('modal-title')).toHaveTextContent(
+        'Edit Dummy EPG'
+      );
     });
 
     it('pre-fills form name when editing an existing EPG', () => {
@@ -395,12 +428,16 @@ describe('DummyEPGForm', () => {
     it('renders timezone options after loading', async () => {
       render(<DummyEPGForm {...defaultProps()} />);
       await waitFor(() => {
-        expect(screen.getAllByRole('option', { name: 'US/Eastern' }).length).toBeGreaterThan(0);
+        expect(
+          screen.getAllByRole('option', { name: 'US/Eastern' }).length
+        ).toBeGreaterThan(0);
       });
     });
 
     it('shows fallback timezones and warning notification when getTimezones rejects', async () => {
-      vi.mocked(DummyEpgUtils.getTimezones).mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(DummyEpgUtils.getTimezones).mockRejectedValueOnce(
+        new Error('Network error')
+      );
       render(<DummyEPGForm {...defaultProps()} />);
       await waitFor(() => {
         expect(showNotification).toHaveBeenCalledWith(
@@ -409,7 +446,9 @@ describe('DummyEPGForm', () => {
       });
       // Fallback options should still be rendered
       await waitFor(() => {
-        expect(screen.getAllByRole('option', { name: 'UTC' }).length).toBeGreaterThan(0);
+        expect(
+          screen.getAllByRole('option', { name: 'UTC' }).length
+        ).toBeGreaterThan(0);
       });
     });
   });
@@ -420,13 +459,17 @@ describe('DummyEPGForm', () => {
     it('shows the import select when dummyEpgs are available', () => {
       setupMocks({ dummyEpgs: [makeTemplate()] });
       render(<DummyEPGForm {...defaultProps()} />);
-      expect(screen.getByPlaceholderText(/Select a template/i)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Select a template/i)
+      ).toBeInTheDocument();
     });
 
     it('does not show import select when dummyEpgs is empty', () => {
       setupMocks({ dummyEpgs: [] });
       render(<DummyEPGForm {...defaultProps()} />);
-      expect(screen.queryByPlaceholderText(/Select a template/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText(/Select a template/i)
+      ).not.toBeInTheDocument();
     });
 
     it('calls buildCustomProperties and applyCustomState on template import', async () => {
@@ -465,7 +508,9 @@ describe('DummyEPGForm', () => {
       fireEvent.change(select, { target: { value: '99' } });
 
       await waitFor(() => {
-        expect(screen.getByDisplayValue('My Template (Copy)')).toBeInTheDocument();
+        expect(
+          screen.getByDisplayValue('My Template (Copy)')
+        ).toBeInTheDocument();
       });
     });
 
@@ -551,7 +596,9 @@ describe('DummyEPGForm', () => {
       });
       render(<DummyEPGForm {...defaultProps({ epg })} />);
       await waitFor(() => {
-        expect(screen.queryByText('(no template provided)')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('(no template provided)')
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -559,8 +606,8 @@ describe('DummyEPGForm', () => {
       const epg = makeEPG({
         custom_properties: {
           title_pattern: '',
-          date_pattern:  '(?<month>\\w+)\\s+(?<day>\\d+)',
-          sample_title:  'Show Oct 17',
+          date_pattern: '(?<month>\\w+)\\s+(?<day>\\d+)',
+          sample_title: 'Show Oct 17',
         },
       });
       render(<DummyEPGForm {...defaultProps({ epg })} />);
@@ -573,14 +620,16 @@ describe('DummyEPGForm', () => {
       const epg = makeEPG({
         custom_properties: {
           title_pattern: '(Show.+)',
-          time_pattern:  '(?<hour>\\d+):(?<minute>\\d+)\\s*(?<ampm>AM|PM)',
-          sample_title:  'Show @ 9:00 PM',
-          timezone:      'US/Eastern',
+          time_pattern: '(?<hour>\\d+):(?<minute>\\d+)\\s*(?<ampm>AM|PM)',
+          sample_title: 'Show @ 9:00 PM',
+          timezone: 'US/Eastern',
         },
       });
       render(<DummyEPGForm {...defaultProps({ epg })} />);
       await waitFor(() => {
-        expect(screen.getByText(/available time placeholders/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/available time placeholders/i)
+        ).toBeInTheDocument();
       });
     });
   });
@@ -638,7 +687,9 @@ describe('DummyEPGForm', () => {
     });
 
     it('shows error notification when addEPG rejects', async () => {
-      vi.mocked(DummyEpgUtils.addEPG).mockRejectedValueOnce(new Error('Server error'));
+      vi.mocked(DummyEpgUtils.addEPG).mockRejectedValueOnce(
+        new Error('Server error')
+      );
       render(<DummyEPGForm {...defaultProps()} />);
 
       const nameInput = screen.getByPlaceholderText('My Sports EPG');
@@ -653,7 +704,9 @@ describe('DummyEPGForm', () => {
     });
 
     it('shows error notification when updateEPG rejects', async () => {
-      vi.mocked(DummyEpgUtils.updateEPG).mockRejectedValueOnce(new Error('Update failed'));
+      vi.mocked(DummyEpgUtils.updateEPG).mockRejectedValueOnce(
+        new Error('Update failed')
+      );
       render(<DummyEPGForm {...defaultProps({ epg: makeEPG() })} />);
       fireEvent.submit(document.querySelector('form'));
 
@@ -687,7 +740,9 @@ describe('DummyEPGForm', () => {
       fireEvent.submit(document.querySelector('form'));
 
       await waitFor(() => {
-        expect(showNotification).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+        expect(showNotification).toHaveBeenCalledWith(
+          expect.objectContaining({ color: 'red' })
+        );
       });
       expect(onClose).not.toHaveBeenCalled();
     });

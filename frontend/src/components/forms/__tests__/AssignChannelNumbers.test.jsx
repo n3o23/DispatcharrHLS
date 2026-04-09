@@ -26,7 +26,15 @@ vi.mock('@mantine/form', () => ({
 
 // ── Mantine core ───────────────────────────────────────────────────────────────
 vi.mock('@mantine/core', () => ({
-  Button: ({ children, onClick, disabled, loading, variant, color, leftSection }) => (
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    loading,
+    variant,
+    color,
+    leftSection,
+  }) => (
     <button
       data-testid="button"
       onClick={onClick}
@@ -252,7 +260,9 @@ describe('AssignChannelNumbers', () => {
 
     it('shows error notification when assignChannelNumbers throws', async () => {
       setupMocks();
-      vi.mocked(API.assignChannelNumbers).mockRejectedValue(new Error('Server error'));
+      vi.mocked(API.assignChannelNumbers).mockRejectedValue(
+        new Error('Server error')
+      );
       render(<AssignChannelNumbers {...defaultProps()} />);
       fireEvent.click(screen.getByTestId('button'));
       await waitFor(() => {
@@ -314,7 +324,9 @@ describe('AssignChannelNumbers', () => {
   describe('channelIds prop', () => {
     it('passes a single channelId correctly', async () => {
       setupMocks();
-      render(<AssignChannelNumbers {...defaultProps({ channelIds: ['ch-99'] })} />);
+      render(
+        <AssignChannelNumbers {...defaultProps({ channelIds: ['ch-99'] })} />
+      );
       fireEvent.click(screen.getByTestId('button'));
       await waitFor(() => {
         expect(API.assignChannelNumbers).toHaveBeenCalledWith(['ch-99'], 1);

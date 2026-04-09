@@ -7,27 +7,35 @@ vi.mock('../../../utils/forms/CronBuilderUtils.js', () => ({
   buildCron: vi.fn(),
   parseCronPreset: vi.fn(),
   CRON_FIELDS: [
-    { index: 0, label: 'Minute (0-59)',              placeholder: '*, 0, */15' },
-    { index: 1, label: 'Hour (0-23)',                placeholder: '*, 0, 9-17' },
-    { index: 2, label: 'Day of Month (1-31)',        placeholder: '*, 1, 1-15' },
-    { index: 3, label: 'Month (1-12)',               placeholder: '*, 1, 1-6'  },
-    { index: 4, label: 'Day of Week (0-6, Sun-Sat)', placeholder: '*, 0, 1-5'  },
+    { index: 0, label: 'Minute (0-59)', placeholder: '*, 0, */15' },
+    { index: 1, label: 'Hour (0-23)', placeholder: '*, 0, 9-17' },
+    { index: 2, label: 'Day of Month (1-31)', placeholder: '*, 1, 1-15' },
+    { index: 3, label: 'Month (1-12)', placeholder: '*, 1, 1-6' },
+    { index: 4, label: 'Day of Week (0-6, Sun-Sat)', placeholder: '*, 0, 1-5' },
   ],
   DAYS_OF_WEEK: [
-    { value: '*',  label: 'Every day'  },
-    { value: '1',  label: 'Monday'     },
-    { value: '2',  label: 'Tuesday'    },
+    { value: '*', label: 'Every day' },
+    { value: '1', label: 'Monday' },
+    { value: '2', label: 'Tuesday' },
   ],
   FREQUENCY_OPTIONS: [
-    { value: 'hourly',  label: 'Hourly'  },
-    { value: 'daily',   label: 'Daily'   },
-    { value: 'weekly',  label: 'Weekly'  },
+    { value: 'hourly', label: 'Hourly' },
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekly', label: 'Weekly' },
     { value: 'monthly', label: 'Monthly' },
   ],
   PRESETS: [
-    { label: 'Every Hour',    description: 'Runs every hour',          value: '0 * * * *'   },
-    { label: 'Every Day 3am', description: 'Runs every day at 3 AM',   value: '0 3 * * *'   },
-    { label: 'Every Sunday',  description: 'Runs every Sunday at 3AM', value: '0 3 * * 0'   },
+    { label: 'Every Hour', description: 'Runs every hour', value: '0 * * * *' },
+    {
+      label: 'Every Day 3am',
+      description: 'Runs every day at 3 AM',
+      value: '0 3 * * *',
+    },
+    {
+      label: 'Every Sunday',
+      description: 'Runs every Sunday at 3AM',
+      value: '0 3 * * 0',
+    },
   ],
   updateCronPart: vi.fn(),
 }));
@@ -35,7 +43,12 @@ vi.mock('../../../utils/forms/CronBuilderUtils.js', () => ({
 // ── Mantine core ───────────────────────────────────────────────────────────────
 vi.mock('@mantine/core', async () => ({
   Badge: ({ children, size, variant, color }) => (
-    <span data-testid="badge" data-size={size} data-variant={variant} data-color={color}>
+    <span
+      data-testid="badge"
+      data-size={size}
+      data-variant={variant}
+      data-color={color}
+    >
       {children}
     </span>
   ),
@@ -51,7 +64,9 @@ vi.mock('@mantine/core', async () => ({
     opened ? (
       <div data-testid="modal">
         <div data-testid="modal-title">{title}</div>
-        <button data-testid="modal-close" onClick={onClose}>×</button>
+        <button data-testid="modal-close" onClick={onClose}>
+          ×
+        </button>
         {children}
       </div>
     ) : null,
@@ -122,7 +137,7 @@ vi.mock('@mantine/core', async () => ({
 // ── lucide-react ───────────────────────────────────────────────────────────────
 vi.mock('lucide-react', () => ({
   Calendar: () => <svg data-testid="icon-calendar" />,
-  Clock:    () => <svg data-testid="icon-clock"    />,
+  Clock: () => <svg data-testid="icon-clock" />,
 }));
 
 // ── Imports after mocks ────────────────────────────────────────────────────────
@@ -241,7 +256,9 @@ describe('CronBuilder', () => {
     it('calls parseCronPreset with the preset value on click', () => {
       renderBuilder();
       fireEvent.click(screen.getByText('Every Hour'));
-      expect(CronBuilderUtils.parseCronPreset).toHaveBeenCalledWith('0 * * * *');
+      expect(CronBuilderUtils.parseCronPreset).toHaveBeenCalledWith(
+        '0 * * * *'
+      );
     });
 
     it('updates state from parseCronPreset result on preset click', () => {
@@ -256,7 +273,11 @@ describe('CronBuilder', () => {
       fireEvent.click(screen.getByText('Every Hour'));
       // buildCron should be called with the updated frequency
       expect(CronBuilderUtils.buildCron).toHaveBeenCalledWith(
-        'hourly', 0, 0, '*', 1
+        'hourly',
+        0,
+        0,
+        '*',
+        1
       );
     });
   });
@@ -268,56 +289,81 @@ describe('CronBuilder', () => {
 
     it('renders the Frequency select', () => {
       renderBuilder();
-      expect(within(getSimplePanel()).getByLabelText('Frequency')).toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).getByLabelText('Frequency')
+      ).toBeInTheDocument();
     });
 
     it('renders the Minute input', () => {
       renderBuilder();
-      expect(within(getSimplePanel()).getByLabelText('Minute (0-59)')).toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).getByLabelText('Minute (0-59)')
+      ).toBeInTheDocument();
     });
 
     it('renders the Hour input when frequency is not hourly', () => {
       renderBuilder();
-      expect(within(getSimplePanel()).getByLabelText('Hour (0-23)')).toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).getByLabelText('Hour (0-23)')
+      ).toBeInTheDocument();
     });
 
     it('does not render Hour input when frequency is hourly', () => {
       renderBuilder();
       const freqSelect = within(getSimplePanel()).getByLabelText('Frequency');
       fireEvent.change(freqSelect, { target: { value: 'hourly' } });
-      expect(within(getSimplePanel()).queryByLabelText('Hour (0-23)')).not.toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).queryByLabelText('Hour (0-23)')
+      ).not.toBeInTheDocument();
     });
 
     it('renders Day of Week select when frequency is weekly', () => {
       renderBuilder();
       const freqSelect = within(getSimplePanel()).getByLabelText('Frequency');
       fireEvent.change(freqSelect, { target: { value: 'weekly' } });
-      expect(within(getSimplePanel()).getByLabelText('Day of Week')).toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).getByLabelText('Day of Week')
+      ).toBeInTheDocument();
     });
 
     it('does not render Day of Week for daily frequency', () => {
       renderBuilder();
-      expect(within(getSimplePanel()).queryByLabelText('Day of Week')).not.toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).queryByLabelText('Day of Week')
+      ).not.toBeInTheDocument();
     });
 
     it('renders Day of Month input when frequency is monthly', () => {
       renderBuilder();
       const freqSelect = within(getSimplePanel()).getByLabelText('Frequency');
       fireEvent.change(freqSelect, { target: { value: 'monthly' } });
-      expect(within(getSimplePanel()).getByLabelText('Day of Month (1-31)')).toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).getByLabelText('Day of Month (1-31)')
+      ).toBeInTheDocument();
     });
 
     it('does not render Day of Month for daily frequency', () => {
       renderBuilder();
-      expect(within(getSimplePanel()).queryByLabelText('Day of Month (1-31)')).not.toBeInTheDocument();
+      expect(
+        within(getSimplePanel()).queryByLabelText('Day of Month (1-31)')
+      ).not.toBeInTheDocument();
     });
 
     it('calls buildCron when minute changes', () => {
       renderBuilder();
-      fireEvent.change(within(getSimplePanel()).getByLabelText('Minute (0-59)'), {
-        target: { value: 30 },
-      });
-      expect(CronBuilderUtils.buildCron).toHaveBeenCalledWith('daily', 30, 3, '*', 1);
+      fireEvent.change(
+        within(getSimplePanel()).getByLabelText('Minute (0-59)'),
+        {
+          target: { value: 30 },
+        }
+      );
+      expect(CronBuilderUtils.buildCron).toHaveBeenCalledWith(
+        'daily',
+        30,
+        3,
+        '*',
+        1
+      );
     });
 
     it('calls buildCron when hour changes', () => {
@@ -325,7 +371,13 @@ describe('CronBuilder', () => {
       fireEvent.change(within(getSimplePanel()).getByLabelText('Hour (0-23)'), {
         target: { value: 8 },
       });
-      expect(CronBuilderUtils.buildCron).toHaveBeenCalledWith('daily', 0, 8, '*', 1);
+      expect(CronBuilderUtils.buildCron).toHaveBeenCalledWith(
+        'daily',
+        0,
+        8,
+        '*',
+        1
+      );
     });
   });
 
@@ -336,31 +388,47 @@ describe('CronBuilder', () => {
 
     it('renders all 5 cron field inputs', () => {
       renderBuilder();
-      expect(within(getAdvancedPanel()).getByLabelText('Minute (0-59)')).toBeInTheDocument();
-      expect(within(getAdvancedPanel()).getByLabelText('Hour (0-23)')).toBeInTheDocument();
-      expect(within(getAdvancedPanel()).getByLabelText('Day of Month (1-31)')).toBeInTheDocument();
-      expect(within(getAdvancedPanel()).getByLabelText('Month (1-12)')).toBeInTheDocument();
-      expect(within(getAdvancedPanel()).getByLabelText('Day of Week (0-6, Sun-Sat)')).toBeInTheDocument();
+      expect(
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)')
+      ).toBeInTheDocument();
+      expect(
+        within(getAdvancedPanel()).getByLabelText('Hour (0-23)')
+      ).toBeInTheDocument();
+      expect(
+        within(getAdvancedPanel()).getByLabelText('Day of Month (1-31)')
+      ).toBeInTheDocument();
+      expect(
+        within(getAdvancedPanel()).getByLabelText('Month (1-12)')
+      ).toBeInTheDocument();
+      expect(
+        within(getAdvancedPanel()).getByLabelText('Day of Week (0-6, Sun-Sat)')
+      ).toBeInTheDocument();
     });
 
     it('renders descriptive helper text', () => {
       renderBuilder();
-      expect(screen.getByText(/Build advanced cron expressions/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Build advanced cron expressions/)
+      ).toBeInTheDocument();
     });
 
     it('calls updateCronPart when an advanced field changes', () => {
       renderBuilder();
-      const minuteInput = within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
+      const minuteInput =
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
       fireEvent.change(minuteInput, { target: { value: '30' } });
       expect(CronBuilderUtils.updateCronPart).toHaveBeenCalledWith(
-        '* * * * *', 0, '30'
+        '* * * * *',
+        0,
+        '30'
       );
     });
 
     it('initializes advanced fields from currentValue when opened', () => {
       renderBuilder({ currentValue: '5 4 * * 1' });
       // The minute field (index 0) should display '5'
-      const minuteInput = within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
+      const minuteInput =
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
       expect(minuteInput).toHaveValue('5');
     });
   });
@@ -416,7 +484,8 @@ describe('CronBuilder', () => {
       // Switch to advanced mode by simulating tab onChange
       // The Tabs mock renders but doesn't fire onChange on tab clicks,
       // so we directly test that advanced panel input changes manualCron
-      const minuteInput = within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
+      const minuteInput =
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
       // The advanced panel's minute input value should be '5'
       expect(minuteInput).toHaveValue('5');
     });
@@ -429,13 +498,15 @@ describe('CronBuilder', () => {
 
     it('sets manualCron to currentValue when opened', () => {
       renderBuilder({ currentValue: '*/15 * * * *' });
-      const minuteInput = within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
+      const minuteInput =
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
       expect(minuteInput).toHaveValue('*/15');
     });
 
     it('keeps default manualCron when currentValue is empty', () => {
       renderBuilder({ currentValue: '' });
-      const minuteInput = within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
+      const minuteInput =
+        within(getAdvancedPanel()).getByLabelText('Minute (0-59)');
       expect(minuteInput).toHaveValue('*');
     });
 

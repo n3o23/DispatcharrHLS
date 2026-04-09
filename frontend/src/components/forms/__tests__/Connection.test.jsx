@@ -75,7 +75,9 @@ vi.mock('@mantine/core', () => ({
     opened ? (
       <div data-testid="modal">
         <div data-testid="modal-title">{title}</div>
-        <button data-testid="modal-close" onClick={onClose}>×</button>
+        <button data-testid="modal-close" onClick={onClose}>
+          ×
+        </button>
         {children}
       </div>
     ) : null,
@@ -106,11 +108,7 @@ vi.mock('@mantine/core', () => ({
     <div data-testid={`tabs-panel-${value}`}>{children}</div>
   ),
   TabsTab: ({ children, value, onClick }) => (
-    <button
-      data-testid={`tab-${value}`}
-      onClick={onClick}
-      role="tab"
-    >
+    <button data-testid={`tab-${value}`} onClick={onClick} role="tab">
       {children}
     </button>
   ),
@@ -134,7 +132,13 @@ vi.mock('@mantine/core', () => ({
         placeholder={placeholder}
         data-testid={`input-${label?.toLowerCase().replace(/\s+/g, '-')}`}
       />
-      {error && <span data-testid={`error-${label?.toLowerCase().replace(/\s+/g, '-')}`}>{error}</span>}
+      {error && (
+        <span
+          data-testid={`error-${label?.toLowerCase().replace(/\s+/g, '-')}`}
+        >
+          {error}
+        </span>
+      )}
     </div>
   ),
 }));
@@ -152,7 +156,11 @@ const makeConnection = (overrides = {}) => ({
   },
   subscriptions: [
     { event: 'channel_added', enabled: true, payload_template: null },
-    { event: 'recording_started', enabled: true, payload_template: '{"id": "{{id}}"}' },
+    {
+      event: 'recording_started',
+      enabled: true,
+      payload_template: '{"id": "{{id}}"}',
+    },
   ],
   ...overrides,
 });
@@ -212,12 +220,23 @@ const renderForm = (props = {}) => {
 describe('ConnectionForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ConnectionUtils.createConnectIntegration).mockResolvedValue({ id: 99 });
-    vi.mocked(ConnectionUtils.updateConnectIntegration).mockResolvedValue(undefined);
-    vi.mocked(ConnectionUtils.setConnectSubscriptions).mockResolvedValue(undefined);
-    vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({ url: 'https://x.com' });
+    vi.mocked(ConnectionUtils.createConnectIntegration).mockResolvedValue({
+      id: 99,
+    });
+    vi.mocked(ConnectionUtils.updateConnectIntegration).mockResolvedValue(
+      undefined
+    );
+    vi.mocked(ConnectionUtils.setConnectSubscriptions).mockResolvedValue(
+      undefined
+    );
+    vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({
+      url: 'https://x.com',
+    });
     vi.mocked(ConnectionUtils.buildSubscriptions).mockReturnValue([]);
-    vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: '' });
+    vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+      fieldErrors: {},
+      apiError: '',
+    });
   });
 
   // ── Visibility ─────────────────────────────────────────────────────────────
@@ -253,7 +272,11 @@ describe('ConnectionForm', () => {
     });
 
     it('calls createConnectIntegration on submit', async () => {
-      const form = makeFormMock({ name: 'New Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'New Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection: null });
@@ -269,7 +292,11 @@ describe('ConnectionForm', () => {
     });
 
     it('does not call updateConnectIntegration when creating', async () => {
-      const form = makeFormMock({ name: 'New Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'New Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection: null });
@@ -284,9 +311,15 @@ describe('ConnectionForm', () => {
 
     it('calls setConnectSubscriptions with newly created connection', async () => {
       const created = { id: 99, name: 'New Hook' };
-      vi.mocked(ConnectionUtils.createConnectIntegration).mockResolvedValue(created);
+      vi.mocked(ConnectionUtils.createConnectIntegration).mockResolvedValue(
+        created
+      );
 
-      const form = makeFormMock({ name: 'New Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'New Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection: null });
@@ -301,7 +334,11 @@ describe('ConnectionForm', () => {
     });
 
     it('calls onClose after successful create', async () => {
-      const form = makeFormMock({ name: 'New Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'New Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       const onClose = vi.fn();
@@ -357,7 +394,11 @@ describe('ConnectionForm', () => {
 
     it('does not call createConnectIntegration when editing', async () => {
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'My Webhook', type: 'webhook', url: 'https://example.com/hook' });
+      const form = makeFormMock({
+        name: 'My Webhook',
+        type: 'webhook',
+        url: 'https://example.com/hook',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection });
@@ -371,7 +412,11 @@ describe('ConnectionForm', () => {
 
     it('calls setConnectSubscriptions with existing connection on update', async () => {
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'My Webhook', type: 'webhook', url: 'https://example.com/hook' });
+      const form = makeFormMock({
+        name: 'My Webhook',
+        type: 'webhook',
+        url: 'https://example.com/hook',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection });
@@ -387,7 +432,11 @@ describe('ConnectionForm', () => {
 
     it('calls onClose after successful update', async () => {
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'My Webhook', type: 'webhook', url: 'https://example.com/hook' });
+      const form = makeFormMock({
+        name: 'My Webhook',
+        type: 'webhook',
+        url: 'https://example.com/hook',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       const onClose = vi.fn();
@@ -446,7 +495,9 @@ describe('ConnectionForm', () => {
         script_path: '/usr/local/bin/notify.sh',
       });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({ path: '/usr/local/bin/notify.sh' });
+      vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({
+        path: '/usr/local/bin/notify.sh',
+      });
 
       renderForm({ connection: null });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
@@ -485,7 +536,9 @@ describe('ConnectionForm', () => {
         url: 'https://example.com/webhook',
       });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({ url: 'https://example.com/webhook' });
+      vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({
+        url: 'https://example.com/webhook',
+      });
 
       renderForm({ connection: null });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
@@ -507,7 +560,9 @@ describe('ConnectionForm', () => {
       });
       vi.mocked(useForm).mockReturnValue(form);
       vi.mocked(ConnectionUtils.buildConfig).mockReturnValue({
-        url: 'https://example.com/hook', headers: { 'X-Token': 'abc123' } });
+        url: 'https://example.com/hook',
+        headers: { 'X-Token': 'abc123' },
+      });
 
       renderForm({ connection });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
@@ -522,7 +577,9 @@ describe('ConnectionForm', () => {
     });
 
     it('omits headers from webhook config when all header rows are empty', async () => {
-      const connection = makeConnection({ config: { url: 'https://example.com/hook', headers: {} } });
+      const connection = makeConnection({
+        config: { url: 'https://example.com/hook', headers: {} },
+      });
       const form = makeFormMock({
         name: 'My Webhook',
         type: 'webhook',
@@ -547,14 +604,21 @@ describe('ConnectionForm', () => {
 
   describe('subscriptions', () => {
     it('passes subscription list with enabled flags to setConnectSubscriptions', async () => {
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
       vi.mocked(ConnectionUtils.buildSubscriptions).mockReturnValue([
         { event: 'channel_added', enabled: true, payload_template: null },
         { event: 'channel_removed', enabled: false, payload_template: null },
-        { event: 'recording_started', enabled: true, payload_template: '{"id": "{{id}}"}' },
+        {
+          event: 'recording_started',
+          enabled: true,
+          payload_template: '{"id": "{{id}}"}',
+        },
       ]);
-
 
       renderForm({ connection: null });
 
@@ -567,8 +631,14 @@ describe('ConnectionForm', () => {
           expect.any(Object),
           expect.arrayContaining([
             expect.objectContaining({ event: 'channel_added', enabled: true }),
-            expect.objectContaining({ event: 'channel_removed', enabled: false }),
-            expect.objectContaining({ event: 'recording_started', enabled: true }),
+            expect.objectContaining({
+              event: 'channel_removed',
+              enabled: false,
+            }),
+            expect.objectContaining({
+              event: 'recording_started',
+              enabled: true,
+            }),
           ])
         );
       });
@@ -576,12 +646,20 @@ describe('ConnectionForm', () => {
 
     it('toggles event off when checkbox is clicked twice', async () => {
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
       vi.mocked(ConnectionUtils.buildSubscriptions).mockReturnValue([
         { event: 'channel_added', enabled: false, payload_template: null },
         { event: 'channel_removed', enabled: false, payload_template: null },
-        { event: 'recording_started', enabled: true, payload_template: '{"id": "{{id}}"}' },
+        {
+          event: 'recording_started',
+          enabled: true,
+          payload_template: '{"id": "{{id}}"}',
+        },
       ]);
 
       renderForm({ connection });
@@ -595,8 +673,14 @@ describe('ConnectionForm', () => {
           expect.any(Object),
           expect.arrayContaining([
             expect.objectContaining({ event: 'channel_added', enabled: false }),
-            expect.objectContaining({ event: 'channel_removed', enabled: false }),
-            expect.objectContaining({ event: 'recording_started', enabled: true }),
+            expect.objectContaining({
+              event: 'channel_removed',
+              enabled: false,
+            }),
+            expect.objectContaining({
+              event: 'recording_started',
+              enabled: true,
+            }),
           ])
         );
       });
@@ -604,17 +688,26 @@ describe('ConnectionForm', () => {
 
     it('includes payload_template in subscription when set', async () => {
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
       vi.mocked(ConnectionUtils.buildSubscriptions).mockReturnValue([
-        { event: 'recording_started', enabled: true, payload_template: '{"id": "{{id}}"}' },
+        {
+          event: 'recording_started',
+          enabled: true,
+          payload_template: '{"id": "{{id}}"}',
+        },
       ]);
 
       renderForm({ connection });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
 
       await waitFor(() => {
-        const subs = vi.mocked(ConnectionUtils.setConnectSubscriptions).mock.calls[0][1];
+        const subs = vi.mocked(ConnectionUtils.setConnectSubscriptions).mock
+          .calls[0][1];
         const recordingSub = subs.find((s) => s.event === 'recording_started');
         expect(recordingSub).toBeDefined();
         expect(recordingSub.payload_template).toBe('{"id": "{{id}}"}');
@@ -622,14 +715,19 @@ describe('ConnectionForm', () => {
     });
 
     it('sends null payload_template when not set for an event', async () => {
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
 
       renderForm({ connection: null });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
 
       await waitFor(() => {
-        const subs = vi.mocked(ConnectionUtils.setConnectSubscriptions).mock.calls[0][1];
+        const subs = vi.mocked(ConnectionUtils.setConnectSubscriptions).mock
+          .calls[0][1];
         subs.forEach((s) => expect(s.payload_template).toBeNull());
       });
     });
@@ -642,9 +740,16 @@ describe('ConnectionForm', () => {
       vi.mocked(ConnectionUtils.createConnectIntegration).mockRejectedValue(
         new Error('Server error')
       );
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: 'Server error' });
+      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+        fieldErrors: {},
+        apiError: 'Server error',
+      });
 
       renderForm({ connection: null });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
@@ -659,9 +764,16 @@ describe('ConnectionForm', () => {
         new Error('Update failed')
       );
       const connection = makeConnection();
-      const form = makeFormMock({ name: 'My Webhook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'My Webhook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: 'Update failed' });
+      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+        fieldErrors: {},
+        apiError: 'Update failed',
+      });
 
       renderForm({ connection });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
@@ -675,9 +787,16 @@ describe('ConnectionForm', () => {
       vi.mocked(ConnectionUtils.createConnectIntegration).mockRejectedValue(
         new Error('fail')
       );
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: 'fail' });
+      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+        fieldErrors: {},
+        apiError: 'fail',
+      });
 
       const onClose = vi.fn();
       renderForm({ connection: null, onClose });
@@ -694,19 +813,30 @@ describe('ConnectionForm', () => {
         .mockRejectedValueOnce(new Error('First error'))
         .mockResolvedValueOnce({ id: 99 });
 
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: 'First error' });
+      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+        fieldErrors: {},
+        apiError: 'First error',
+      });
 
       renderForm({ connection: null });
 
       // First submit — fails
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
-      await waitFor(() => expect(screen.queryByText('First error')).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('First error')).toBeInTheDocument()
+      );
 
       // Second submit — succeeds
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
-      await waitFor(() => expect(screen.queryByText('First error')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('First error')).not.toBeInTheDocument()
+      );
     });
   });
 
@@ -727,18 +857,29 @@ describe('ConnectionForm', () => {
       vi.mocked(ConnectionUtils.createConnectIntegration).mockRejectedValue(
         new Error('fail')
       );
-      const form = makeFormMock({ name: 'Hook', type: 'webhook', url: 'https://x.com' });
+      const form = makeFormMock({
+        name: 'Hook',
+        type: 'webhook',
+        url: 'https://x.com',
+      });
       vi.mocked(useForm).mockReturnValue(form);
-      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({ fieldErrors: {}, apiError: 'fail' });
+      vi.mocked(ConnectionUtils.parseApiError).mockReturnValue({
+        fieldErrors: {},
+        apiError: 'fail',
+      });
 
       renderForm({ connection: null });
       fireEvent.submit(screen.getByTestId('modal').querySelector('form'));
 
-      await waitFor(() => expect(screen.queryByText('fail')).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('fail')).toBeInTheDocument()
+      );
 
       fireEvent.click(screen.getByTestId('modal-close'));
 
-      await waitFor(() => expect(screen.queryByText('fail')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('fail')).not.toBeInTheDocument()
+      );
     });
   });
 

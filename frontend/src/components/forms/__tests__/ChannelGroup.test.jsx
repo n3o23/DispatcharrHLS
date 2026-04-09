@@ -155,7 +155,9 @@ describe('ChannelGroup', () => {
 
       renderForm();
 
-      expect(screen.getByTestId('modal-title')).toHaveTextContent('Channel Group');
+      expect(screen.getByTestId('modal-title')).toHaveTextContent(
+        'Channel Group'
+      );
     });
   });
 
@@ -227,7 +229,10 @@ describe('ChannelGroup', () => {
 
     it('resets the form after successful add', async () => {
       setupMocks();
-      vi.mocked(API.addChannelGroup).mockResolvedValue({ id: 99, name: 'NewGroup' });
+      vi.mocked(API.addChannelGroup).mockResolvedValue({
+        id: 99,
+        name: 'NewGroup',
+      });
 
       const form = makeFormMock('NewGroup');
       vi.mocked(useForm).mockReturnValue(form);
@@ -317,7 +322,10 @@ describe('ChannelGroup', () => {
 
       renderForm({ channelGroup: makeGroup() });
 
-      expect(screen.getByTestId('alert')).toHaveAttribute('data-color', 'yellow');
+      expect(screen.getByTestId('alert')).toHaveAttribute(
+        'data-color',
+        'yellow'
+      );
     });
 
     it('disables the name input for non-editable group', () => {

@@ -42,7 +42,9 @@ const CronPartInput = ({ field, cron, onChange }) => (
     label={field.label}
     placeholder={field.placeholder}
     value={cron.split(' ')[field.index] || '*'}
-    onChange={(e) => onChange(updateCronPart(cron, field.index, e.currentTarget.value))}
+    onChange={(e) =>
+      onChange(updateCronPart(cron, field.index, e.currentTarget.value))
+    }
   />
 );
 

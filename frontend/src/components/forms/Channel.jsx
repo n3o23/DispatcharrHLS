@@ -37,7 +37,10 @@ import { ListOrdered, SquarePlus, X, Zap } from 'lucide-react';
 import useEPGsStore from '../../store/epgs';
 import { FixedSizeList as List } from 'react-window';
 import { USER_LEVEL_LABELS, USER_LEVELS } from '../../constants';
-import { showNotification, updateNotification, } from '../../utils/notificationUtils.js';
+import {
+  showNotification,
+  updateNotification,
+} from '../../utils/notificationUtils.js';
 import {
   addChannel,
   createLogo,

@@ -30,7 +30,9 @@ vi.mock('@mantine/form', () => ({
       // Return the live object — no spread — so setFieldValue mutations are visible
       getValues: vi.fn(() => values),
       setValues: vi.fn((v) => Object.assign(values, v)),
-      setFieldValue: vi.fn((field, value) => { values[field] = value; }),
+      setFieldValue: vi.fn((field, value) => {
+        values[field] = value;
+      }),
       reset: vi.fn(),
       submitting: false,
       onSubmit: vi.fn((handler) => (e) => {
@@ -48,12 +50,23 @@ vi.mock('@mantine/form', () => ({
 
 // ── ScheduleInput mock ─────────────────────────────────────────────────────────
 vi.mock('../ScheduleInput', () => ({
-  default: ({ scheduleType, onScheduleTypeChange, onIntervalChange, onCronChange }) => (
+  default: ({
+    scheduleType,
+    onScheduleTypeChange,
+    onIntervalChange,
+    onCronChange,
+  }) => (
     <div data-testid="schedule-input">
-      <button data-testid="set-interval" onClick={() => onScheduleTypeChange('interval')}>
+      <button
+        data-testid="set-interval"
+        onClick={() => onScheduleTypeChange('interval')}
+      >
         Set Interval
       </button>
-      <button data-testid="set-cron" onClick={() => onScheduleTypeChange('cron')}>
+      <button
+        data-testid="set-cron"
+        onClick={() => onScheduleTypeChange('cron')}
+      >
         Set Cron
       </button>
       <input
@@ -117,7 +130,11 @@ vi.mock('@mantine/core', async () => ({
       {(data ?? []).map((opt) => {
         const val = typeof opt === 'string' ? opt : opt.value;
         const lbl = typeof opt === 'string' ? opt : opt.label;
-        return <option key={val} value={val}>{lbl}</option>;
+        return (
+          <option key={val} value={val}>
+            {lbl}
+          </option>
+        );
       })}
     </select>
   ),
@@ -139,7 +156,16 @@ vi.mock('@mantine/core', async () => ({
       {children}
     </span>
   ),
-  TextInput: ({ label, value, onChange, placeholder, error, id, name, required }) => (
+  TextInput: ({
+    label,
+    value,
+    onChange,
+    placeholder,
+    error,
+    id,
+    name,
+    required,
+  }) => (
     <div>
       <label htmlFor={id || name}>{label}</label>
       <input
@@ -149,7 +175,10 @@ vi.mock('@mantine/core', async () => ({
         placeholder={placeholder}
         required={required}
         onChange={(e) =>
-          onChange?.({ target: { value: e.target.value }, currentTarget: { value: e.target.value } })
+          onChange?.({
+            target: { value: e.target.value },
+            currentTarget: { value: e.target.value },
+          })
         }
       />
       {error && <span data-testid="input-error">{error}</span>}
@@ -243,7 +272,9 @@ describe('EPG', () => {
 
     it('renders a cancel/close button', () => {
       render(<EPG {...defaultProps()} />);
-      expect(screen.getByRole('button', { name: /cancel|close/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /cancel|close/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -257,11 +288,20 @@ describe('EPG', () => {
         key: vi.fn(),
         getValues: vi.fn(() => ({ ...epg, cron_expression: '' })),
         setValues: mockSetValues,
-        setFieldValue: vi.fn((field, value) => { epg[field] = value; }),
+        setFieldValue: vi.fn((field, value) => {
+          epg[field] = value;
+        }),
         reset: vi.fn(),
         submitting: false,
-        onSubmit: vi.fn((h) => (e) => { e?.preventDefault?.(); h({ ...epg }); }),
-        getInputProps: vi.fn((field) => ({ value: epg[field] ?? '', onChange: vi.fn(), error: null })),
+        onSubmit: vi.fn((h) => (e) => {
+          e?.preventDefault?.();
+          h({ ...epg });
+        }),
+        getInputProps: vi.fn((field) => ({
+          value: epg[field] ?? '',
+          onChange: vi.fn(),
+          error: null,
+        })),
       });
 
       render(<EPG {...defaultProps({ epg })} />);
@@ -279,8 +319,15 @@ describe('EPG', () => {
         setFieldValue: vi.fn(() => {}),
         reset: vi.fn(),
         submitting: false,
-        onSubmit: vi.fn((h) => (e) => { e?.preventDefault?.(); h({}); }),
-        getInputProps: vi.fn(() => ({ value: '', onChange: vi.fn(), error: null })),
+        onSubmit: vi.fn((h) => (e) => {
+          e?.preventDefault?.();
+          h({});
+        }),
+        getInputProps: vi.fn(() => ({
+          value: '',
+          onChange: vi.fn(),
+          error: null,
+        })),
       });
 
       render(<EPG {...defaultProps({ epg: null })} />);
@@ -288,15 +335,22 @@ describe('EPG', () => {
     });
 
     it('sets scheduleType to "cron" when epg has a cron_expression', () => {
-      const epg = makeEPG({ cron_expression: '0 */6 * * *', refresh_interval: 0 });
+      const epg = makeEPG({
+        cron_expression: '0 */6 * * *',
+        refresh_interval: 0,
+      });
       render(<EPG {...defaultProps({ epg })} />);
-      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent('cron');
+      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent(
+        'cron'
+      );
     });
 
     it('sets scheduleType to "interval" when epg has no cron_expression', () => {
       const epg = makeEPG({ cron_expression: '', refresh_interval: 12 });
       render(<EPG {...defaultProps({ epg })} />);
-      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent('interval');
+      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent(
+        'interval'
+      );
     });
   });
 
@@ -331,20 +385,26 @@ describe('EPG', () => {
   describe('schedule type toggling', () => {
     it('scheduleType starts as "interval" for new EPG', () => {
       render(<EPG {...defaultProps()} />);
-      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent('interval');
+      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent(
+        'interval'
+      );
     });
 
     it('updates scheduleType to "cron" when ScheduleInput fires onScheduleTypeChange', () => {
       render(<EPG {...defaultProps()} />);
       fireEvent.click(screen.getByTestId('set-cron'));
-      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent('cron');
+      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent(
+        'cron'
+      );
     });
 
     it('updates scheduleType back to "interval" from cron', () => {
       render(<EPG {...defaultProps()} />);
       fireEvent.click(screen.getByTestId('set-cron'));
       fireEvent.click(screen.getByTestId('set-interval'));
-      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent('interval');
+      expect(screen.getByTestId('schedule-type-value')).toHaveTextContent(
+        'interval'
+      );
     });
   });
 
@@ -415,16 +475,28 @@ describe('EPG', () => {
     });
 
     it('clears refresh_interval when schedule type is cron on submit', async () => {
-      const epg = makeEPG({ cron_expression: '0 * * * *', refresh_interval: 24 });
+      const epg = makeEPG({
+        cron_expression: '0 * * * *',
+        refresh_interval: 24,
+      });
       vi.mocked(useForm).mockReturnValue({
         key: vi.fn(),
         getValues: vi.fn(() => ({ ...epg })),
         setValues: vi.fn((v) => Object.assign(epg, v)),
-        setFieldValue: vi.fn((field, value) => { epg[field] = value; }),
+        setFieldValue: vi.fn((field, value) => {
+          epg[field] = value;
+        }),
         reset: vi.fn(),
         submitting: false,
-        onSubmit: vi.fn((h) => (e) => { e?.preventDefault?.(); h({ ...epg }); }),
-        getInputProps: vi.fn((field) => ({ value: epg[field] ?? '', onChange: vi.fn(), error: null })),
+        onSubmit: vi.fn((h) => (e) => {
+          e?.preventDefault?.();
+          h({ ...epg });
+        }),
+        getInputProps: vi.fn((field) => ({
+          value: epg[field] ?? '',
+          onChange: vi.fn(),
+          error: null,
+        })),
       });
       render(<EPG {...defaultProps({ epg })} />);
       fireEvent.click(screen.getByText('Update EPG Source'));
@@ -442,11 +514,20 @@ describe('EPG', () => {
         key: vi.fn(),
         getValues: vi.fn(() => ({ ...epg })),
         setValues: vi.fn((v) => Object.assign(epg, v)),
-        setFieldValue: vi.fn((field, value) => { epg[field] = value; }),
+        setFieldValue: vi.fn((field, value) => {
+          epg[field] = value;
+        }),
         reset: vi.fn(),
         submitting: false,
-        onSubmit: vi.fn((h) => (e) => { e?.preventDefault?.(); h({ ...epg }); }),
-        getInputProps: vi.fn((field) => ({ value: epg[field] ?? '', onChange: vi.fn(), error: null })),
+        onSubmit: vi.fn((h) => (e) => {
+          e?.preventDefault?.();
+          h({ ...epg });
+        }),
+        getInputProps: vi.fn((field) => ({
+          value: epg[field] ?? '',
+          onChange: vi.fn(),
+          error: null,
+        })),
       });
       render(<EPG {...defaultProps({ epg })} />);
       fireEvent.click(screen.getByText('Update EPG Source'));
@@ -497,8 +578,15 @@ describe('EPG', () => {
         setFieldValue: vi.fn(() => {}),
         reset: mockReset,
         submitting: false,
-        onSubmit: vi.fn((h) => (e) => { e?.preventDefault?.(); h({}); }),
-        getInputProps: vi.fn(() => ({ value: '', onChange: vi.fn(), error: null })),
+        onSubmit: vi.fn((h) => (e) => {
+          e?.preventDefault?.();
+          h({});
+        }),
+        getInputProps: vi.fn(() => ({
+          value: '',
+          onChange: vi.fn(),
+          error: null,
+        })),
       });
       render(<EPG {...defaultProps()} />);
       fireEvent.click(screen.getByText('Create EPG Source'));
@@ -513,7 +601,9 @@ describe('EPG', () => {
   describe('active checkbox', () => {
     it('renders the Active checkbox', () => {
       render(<EPG {...defaultProps()} />);
-      expect(screen.getByTestId('checkbox-enable-this-epg-source')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('checkbox-enable-this-epg-source')
+      ).toBeInTheDocument();
     });
   });
 });

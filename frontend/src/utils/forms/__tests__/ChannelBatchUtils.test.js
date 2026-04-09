@@ -39,7 +39,7 @@ describe('ChannelBatchUtils', () => {
     vi.clearAllMocks();
   });
 
-// ── getChannelGroupChange ──────────────────────────────────────────────────────
+  // ── getChannelGroupChange ──────────────────────────────────────────────────────
 
   describe('getChannelGroupChange', () => {
     const channelGroups = {
@@ -58,15 +58,19 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('returns the group name when a valid group is selected', () => {
-      expect(getChannelGroupChange('1', channelGroups)).toBe('• Channel Group: Sports');
+      expect(getChannelGroupChange('1', channelGroups)).toBe(
+        '• Channel Group: Sports'
+      );
     });
 
     it('returns "Unknown" when group id is not found in channelGroups', () => {
-      expect(getChannelGroupChange('99', channelGroups)).toBe('• Channel Group: Unknown');
+      expect(getChannelGroupChange('99', channelGroups)).toBe(
+        '• Channel Group: Unknown'
+      );
     });
   });
 
-// ── getLogoChange ─────────────────────────────────────────────────────────────
+  // ── getLogoChange ─────────────────────────────────────────────────────────────
 
   describe('getLogoChange', () => {
     const channelLogos = {
@@ -97,7 +101,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── getStreamProfileChange ────────────────────────────────────────────────────
+  // ── getStreamProfileChange ────────────────────────────────────────────────────
 
   describe('getStreamProfileChange', () => {
     const streamProfiles = [
@@ -116,23 +120,31 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('returns "Use Default" message when streamProfileId is "0"', () => {
-      expect(getStreamProfileChange('0', streamProfiles)).toBe('• Stream Profile: Use Default');
+      expect(getStreamProfileChange('0', streamProfiles)).toBe(
+        '• Stream Profile: Use Default'
+      );
     });
 
     it('returns the profile name when a valid profile is selected', () => {
-      expect(getStreamProfileChange('1', streamProfiles)).toBe('• Stream Profile: HD Profile');
+      expect(getStreamProfileChange('1', streamProfiles)).toBe(
+        '• Stream Profile: HD Profile'
+      );
     });
 
     it('matches profile id using string coercion', () => {
-      expect(getStreamProfileChange(2, streamProfiles)).toBe('• Stream Profile: SD Profile');
+      expect(getStreamProfileChange(2, streamProfiles)).toBe(
+        '• Stream Profile: SD Profile'
+      );
     });
 
     it('returns "Selected Profile" fallback when profile is not found', () => {
-      expect(getStreamProfileChange('99', streamProfiles)).toBe('• Stream Profile: Selected Profile');
+      expect(getStreamProfileChange('99', streamProfiles)).toBe(
+        '• Stream Profile: Selected Profile'
+      );
     });
   });
 
-// ── getUserLevelChange ────────────────────────────────────────────────────────
+  // ── getUserLevelChange ────────────────────────────────────────────────────────
 
   describe('getUserLevelChange', () => {
     const userLevelLabels = {
@@ -151,15 +163,19 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('returns the label when a valid user level is selected', () => {
-      expect(getUserLevelChange('1', userLevelLabels)).toBe('• User Level: Admin');
+      expect(getUserLevelChange('1', userLevelLabels)).toBe(
+        '• User Level: Admin'
+      );
     });
 
     it('returns the raw userLevel value when label is not found', () => {
-      expect(getUserLevelChange('99', userLevelLabels)).toBe('• User Level: 99');
+      expect(getUserLevelChange('99', userLevelLabels)).toBe(
+        '• User Level: 99'
+      );
     });
   });
 
-// ── getMatureContentChange ────────────────────────────────────────────────────
+  // ── getMatureContentChange ────────────────────────────────────────────────────
 
   describe('getMatureContentChange', () => {
     it('returns null when isAdult is falsy', () => {
@@ -181,7 +197,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── getRegexNameChange ────────────────────────────────────────────────────────
+  // ── getRegexNameChange ────────────────────────────────────────────────────────
 
   describe('getRegexNameChange', () => {
     it('returns null when regexFind is falsy', () => {
@@ -210,7 +226,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── getEpgChange ──────────────────────────────────────────────────────────────
+  // ── getEpgChange ──────────────────────────────────────────────────────────────
 
   describe('getEpgChange', () => {
     const epgs = {
@@ -225,7 +241,9 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('returns clear assignment message when selectedDummyEpgId is "clear"', () => {
-      expect(getEpgChange('clear', epgs)).toBe('• EPG: Clear Assignment (use default dummy)');
+      expect(getEpgChange('clear', epgs)).toBe(
+        '• EPG: Clear Assignment (use default dummy)'
+      );
     });
 
     it('returns the EPG name when a valid EPG is selected', () => {
@@ -237,7 +255,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── API wrappers ──────────────────────────────────────────────────────────────
+  // ── API wrappers ──────────────────────────────────────────────────────────────
 
   describe('updateChannels', () => {
     it('calls API.updateChannels with channelIds and values', () => {
@@ -257,17 +275,32 @@ describe('ChannelBatchUtils', () => {
   describe('bulkRegexRenameChannels', () => {
     it('calls API.bulkRegexRenameChannels with all arguments', () => {
       bulkRegexRenameChannels([1, 2], 'find', 'replace', 'g');
-      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith([1, 2], 'find', 'replace', 'g');
+      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith(
+        [1, 2],
+        'find',
+        'replace',
+        'g'
+      );
     });
 
     it('passes empty string when regexReplace is null', () => {
       bulkRegexRenameChannels([1], 'find', null, 'g');
-      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith([1], 'find', '', 'g');
+      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith(
+        [1],
+        'find',
+        '',
+        'g'
+      );
     });
 
     it('passes empty string when regexReplace is undefined', () => {
       bulkRegexRenameChannels([1], 'find', undefined, 'g');
-      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith([1], 'find', '', 'g');
+      expect(API.bulkRegexRenameChannels).toHaveBeenCalledWith(
+        [1],
+        'find',
+        '',
+        'g'
+      );
     });
   });
 
@@ -307,7 +340,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── computeRegexPreview ───────────────────────────────────────────────────────
+  // ── computeRegexPreview ───────────────────────────────────────────────────────
 
   describe('computeRegexPreview', () => {
     const nameById = {
@@ -343,7 +376,12 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('only includes ids that exist in nameById', () => {
-      const result = computeRegexPreview([1, 99, 2], nameById, 'HBO', 'Cinemax');
+      const result = computeRegexPreview(
+        [1, 99, 2],
+        nameById,
+        'HBO',
+        'Cinemax'
+      );
       expect(result).toHaveLength(2);
     });
 
@@ -352,7 +390,13 @@ describe('ChannelBatchUtils', () => {
         Array.from({ length: 30 }, (_, i) => [i + 1, `HBO ${i + 1}`])
       );
       const ids = Array.from({ length: 30 }, (_, i) => i + 1);
-      const result = computeRegexPreview(ids, largeNameById, 'HBO', 'Cinemax', 5);
+      const result = computeRegexPreview(
+        ids,
+        largeNameById,
+        'HBO',
+        'Cinemax',
+        5
+      );
       expect(result).toHaveLength(5);
     });
 
@@ -377,7 +421,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── buildSubmitValues ─────────────────────────────────────────────────────────
+  // ── buildSubmitValues ─────────────────────────────────────────────────────────
 
   describe('buildSubmitValues', () => {
     const baseFormValues = {
@@ -395,47 +439,83 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('removes stream_profile_id when it is "-1"', () => {
-      const result = buildSubmitValues({ ...baseFormValues, stream_profile_id: '-1' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, stream_profile_id: '-1' },
+        null,
+        null
+      );
       expect(result).not.toHaveProperty('stream_profile_id');
     });
 
     it('removes stream_profile_id when it is falsy', () => {
-      const result = buildSubmitValues({ ...baseFormValues, stream_profile_id: '' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, stream_profile_id: '' },
+        null,
+        null
+      );
       expect(result).not.toHaveProperty('stream_profile_id');
     });
 
     it('converts stream_profile_id "0" to null (use default)', () => {
-      const result = buildSubmitValues({ ...baseFormValues, stream_profile_id: '0' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, stream_profile_id: '0' },
+        null,
+        null
+      );
       expect(result.stream_profile_id).toBeNull();
     });
 
     it('preserves a valid stream_profile_id string', () => {
-      const result = buildSubmitValues({ ...baseFormValues, stream_profile_id: '3' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, stream_profile_id: '3' },
+        null,
+        null
+      );
       expect(result.stream_profile_id).toBe('3');
     });
 
     it('removes user_level when it is "-1"', () => {
-      const result = buildSubmitValues({ ...baseFormValues, user_level: '-1' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, user_level: '-1' },
+        null,
+        null
+      );
       expect(result).not.toHaveProperty('user_level');
     });
 
     it('preserves a valid user_level', () => {
-      const result = buildSubmitValues({ ...baseFormValues, user_level: '2' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, user_level: '2' },
+        null,
+        null
+      );
       expect(result.user_level).toBe('2');
     });
 
     it('removes is_adult when it is "-1"', () => {
-      const result = buildSubmitValues({ ...baseFormValues, is_adult: '-1' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, is_adult: '-1' },
+        null,
+        null
+      );
       expect(result).not.toHaveProperty('is_adult');
     });
 
     it('converts is_adult "true" to boolean true', () => {
-      const result = buildSubmitValues({ ...baseFormValues, is_adult: 'true' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, is_adult: 'true' },
+        null,
+        null
+      );
       expect(result.is_adult).toBe(true);
     });
 
     it('converts is_adult "false" to boolean false', () => {
-      const result = buildSubmitValues({ ...baseFormValues, is_adult: 'false' }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, is_adult: 'false' },
+        null,
+        null
+      );
       expect(result.is_adult).toBe(false);
     });
 
@@ -445,12 +525,20 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('removes channel_group_id when selectedChannelGroup is null', () => {
-      const result = buildSubmitValues({ ...baseFormValues, channel_group_id: 99 }, null, null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, channel_group_id: 99 },
+        null,
+        null
+      );
       expect(result).not.toHaveProperty('channel_group_id');
     });
 
     it('removes channel_group_id when selectedChannelGroup is "-1"', () => {
-      const result = buildSubmitValues({ ...baseFormValues, channel_group_id: 99 }, '-1', null);
+      const result = buildSubmitValues(
+        { ...baseFormValues, channel_group_id: 99 },
+        '-1',
+        null
+      );
       expect(result).not.toHaveProperty('channel_group_id');
     });
 
@@ -481,7 +569,7 @@ describe('ChannelBatchUtils', () => {
     });
   });
 
-// ── buildEpgAssociations ──────────────────────────────────────────────────────
+  // ── buildEpgAssociations ──────────────────────────────────────────────────────
 
   describe('buildEpgAssociations', () => {
     const channelIds = [1, 2, 3];
@@ -491,18 +579,27 @@ describe('ChannelBatchUtils', () => {
       11: { name: 'Empty EPG', epg_data_count: 0 },
     };
 
-    const tvgs = [
-      { id: 42, epg_source: 10 },
-    ];
+    const tvgs = [{ id: 42, epg_source: 10 }];
 
     it('returns null when selectedDummyEpgId is falsy', async () => {
-      await expect(buildEpgAssociations(null, channelIds, epgs, tvgs)).resolves.toBeNull();
-      await expect(buildEpgAssociations('', channelIds, epgs, tvgs)).resolves.toBeNull();
-      await expect(buildEpgAssociations(undefined, channelIds, epgs, tvgs)).resolves.toBeNull();
+      await expect(
+        buildEpgAssociations(null, channelIds, epgs, tvgs)
+      ).resolves.toBeNull();
+      await expect(
+        buildEpgAssociations('', channelIds, epgs, tvgs)
+      ).resolves.toBeNull();
+      await expect(
+        buildEpgAssociations(undefined, channelIds, epgs, tvgs)
+      ).resolves.toBeNull();
     });
 
     it('returns clear associations when selectedDummyEpgId is "clear"', async () => {
-      const result = await buildEpgAssociations('clear', channelIds, epgs, tvgs);
+      const result = await buildEpgAssociations(
+        'clear',
+        channelIds,
+        epgs,
+        tvgs
+      );
       expect(result).toEqual([
         { channel_id: 1, epg_data_id: null },
         { channel_id: 2, epg_data_id: null },
@@ -531,9 +628,7 @@ describe('ChannelBatchUtils', () => {
     });
 
     it('calls getEpgData when tvgs does not contain a matching epg_source', async () => {
-      vi.mocked(API.getEPGData).mockResolvedValue([
-        { id: 55, epg_source: 10 },
-      ]);
+      vi.mocked(API.getEPGData).mockResolvedValue([{ id: 55, epg_source: 10 }]);
       const result = await buildEpgAssociations('10', channelIds, epgs, []);
       expect(API.getEPGData).toHaveBeenCalled();
       expect(result).toEqual([

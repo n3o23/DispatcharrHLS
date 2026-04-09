@@ -65,7 +65,12 @@ vi.mock('../Logo', () => ({
 
 vi.mock('../../LazyLogo', () => ({
   default: ({ logoId, alt, style }) => (
-    <img data-testid="lazy-logo" data-logo-id={logoId} alt={alt} style={style} />
+    <img
+      data-testid="lazy-logo"
+      data-logo-id={logoId}
+      alt={alt}
+      style={style}
+    />
   ),
 }));
 
@@ -119,7 +124,17 @@ vi.mock('@mantine/core', async () => ({
     </button>
   ),
   Box: ({ children, style }) => <div style={style}>{children}</div>,
-  Button: ({ children, onClick, disabled, loading, type, variant, color, leftSection, title }) => (
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    loading,
+    type,
+    variant,
+    color,
+    leftSection,
+    title,
+  }) => (
     <button
       onClick={onClick}
       disabled={disabled || loading}
@@ -138,7 +153,14 @@ vi.mock('@mantine/core', async () => ({
     <hr data-orientation={orientation} data-size={size} />
   ),
   Flex: ({ children, gap, justify, align, mih }) => (
-    <div style={{ gap, justifyContent: justify, alignItems: align, minHeight: mih }}>
+    <div
+      style={{
+        gap,
+        justifyContent: justify,
+        alignItems: align,
+        minHeight: mih,
+      }}
+    >
       {children}
     </div>
   ),
@@ -165,7 +187,9 @@ vi.mock('@mantine/core', async () => ({
         name={name}
         type="number"
         value={value ?? ''}
-        onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+        onChange={(e) =>
+          onChange(e.target.value === '' ? undefined : Number(e.target.value))
+        }
         data-testid={`number-input-${name}`}
       />
       {error && <span data-testid={`error-${name}`}>{error}</span>}
@@ -181,7 +205,9 @@ vi.mock('@mantine/core', async () => ({
       {children}
     </div>
   ),
-  PopoverTarget: ({ children }) => <div data-testid="popover-target">{children}</div>,
+  PopoverTarget: ({ children }) => (
+    <div data-testid="popover-target">{children}</div>
+  ),
   ScrollArea: ({ children, style }) => <div style={style}>{children}</div>,
   Select: ({ label, value, onChange, data, id, name, error }) => (
     <div>
@@ -222,7 +248,20 @@ vi.mock('@mantine/core', async () => ({
       {children}
     </span>
   ),
-  TextInput: ({ id, name, label, readOnly, value, onClick, onChange, error, autoFocus, placeholder, rightSection, ...rest }) => (
+  TextInput: ({
+    id,
+    name,
+    label,
+    readOnly,
+    value,
+    onClick,
+    onChange,
+    error,
+    autoFocus,
+    placeholder,
+    rightSection,
+    ...rest
+  }) => (
     <div>
       <label htmlFor={id}>{label}</label>
       <input
@@ -242,9 +281,7 @@ vi.mock('@mantine/core', async () => ({
       {error && <span data-testid={`error-${name}`}>{error}</span>}
     </div>
   ),
-  Tooltip: ({ children, label }) => (
-    <div data-tooltip={label}>{children}</div>
-  ),
+  Tooltip: ({ children, label }) => <div data-tooltip={label}>{children}</div>,
   UnstyledButton: ({ children, onClick }) => (
     <button data-testid="unstyled-button" onClick={onClick}>
       {children}
@@ -264,7 +301,10 @@ import useLogosStore from '../../../store/logos';
 import { useChannelLogoSelection } from '../../../hooks/useSmartLogos';
 import { useForm } from 'react-hook-form';
 import * as ChannelUtils from '../../../utils/forms/ChannelUtils.js';
-import { showNotification, updateNotification } from '../../../utils/notificationUtils.js';
+import {
+  showNotification,
+  updateNotification,
+} from '../../../utils/notificationUtils.js';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -284,7 +324,10 @@ const makeFormMethods = (overrides = {}) => {
   };
 
   const register = vi.fn((name) => ({ name, ref: vi.fn() }));
-  const handleSubmit = vi.fn((fn) => (e) => { e?.preventDefault?.(); return fn(watchValues); });
+  const handleSubmit = vi.fn((fn) => (e) => {
+    e?.preventDefault?.();
+    return fn(watchValues);
+  });
   const setValue = vi.fn();
   const watch = vi.fn((key) => (key ? watchValues[key] : watchValues));
   const reset = vi.fn();
@@ -326,18 +369,52 @@ const makeEpgs = () => ({
 });
 
 const makeTvgs = () => [
-  { id: 'tvg-1', name: 'ESPN', tvg_id: 'espn.us', epg_source: 10, icon_url: 'http://example.com/espn.png' },
-  { id: 'tvg-2', name: 'CNN', tvg_id: 'cnn.us', epg_source: 11, icon_url: 'http://example.com/cnn.png' },
+  {
+    id: 'tvg-1',
+    name: 'ESPN',
+    tvg_id: 'espn.us',
+    epg_source: 10,
+    icon_url: 'http://example.com/espn.png',
+  },
+  {
+    id: 'tvg-2',
+    name: 'CNN',
+    tvg_id: 'cnn.us',
+    epg_source: 11,
+    icon_url: 'http://example.com/cnn.png',
+  },
 ];
 
 const makeTvgsById = () => ({
-  'tvg-1': { id: 'tvg-1', name: 'ESPN', tvg_id: 'espn.us', epg_source: 10, icon_url: 'http://example.com/espn.png' },
-  'tvg-2': { id: 'tvg-2', name: 'CNN', tvg_id: 'cnn.us', epg_source: 11, icon_url: 'http://example.com/cnn.png' },
+  'tvg-1': {
+    id: 'tvg-1',
+    name: 'ESPN',
+    tvg_id: 'espn.us',
+    epg_source: 10,
+    icon_url: 'http://example.com/espn.png',
+  },
+  'tvg-2': {
+    id: 'tvg-2',
+    name: 'CNN',
+    tvg_id: 'cnn.us',
+    epg_source: 11,
+    icon_url: 'http://example.com/cnn.png',
+  },
 });
 
 const makeLogos = () => ({
-  42: { id: 42, name: 'ESPN Logo', url: 'http://example.com/espn.png', cache_url: '/cache/espn.png' },
-  43: { id: 43, name: 'CNN Logo', url: 'http://example.com/cnn.png', cache_url: '/cache/cnn.png' },
+  42: {
+    id: 42,
+    name: 'ESPN Logo',
+    url: 'http://example.com/espn.png',
+    cache_url: '/cache/espn.png',
+  },
+  43: {
+    id: 43,
+    name: 'CNN Logo',
+    url: 'http://example.com/cnn.png',
+    cache_url: '/cache/cnn.png',
+  },
 });
 
 const makeChannelLogos = () => ({
@@ -384,9 +461,7 @@ const setupMocks = ({ formOverrides = {}, channel = null } = {}) => {
     sel({ epgs, tvgs, tvgsById })
   );
 
-  vi.mocked(useLogosStore).mockImplementation((sel) =>
-    sel({ logos })
-  );
+  vi.mocked(useLogosStore).mockImplementation((sel) => sel({ logos }));
 
   const mockEnsureLogosLoaded = vi.fn();
   vi.mocked(useChannelLogoSelection).mockReturnValue({
@@ -396,7 +471,9 @@ const setupMocks = ({ formOverrides = {}, channel = null } = {}) => {
   });
 
   // Same object reference every call — prevents useMemo from recalculating
-  vi.mocked(ChannelUtils.getChannelFormDefaultValues).mockReturnValue(stableDefaults);
+  vi.mocked(ChannelUtils.getChannelFormDefaultValues).mockReturnValue(
+    stableDefaults
+  );
   vi.mocked(ChannelUtils.getFormattedValues).mockImplementation((v) => v);
 
   return { formMethods, mockEnsureLogosLoaded };
@@ -460,7 +537,9 @@ describe('ChannelForm', () => {
     it('renders Channel Group text input', () => {
       setupMocks();
       render(<ChannelForm {...defaultProps()} />);
-      expect(screen.getByTestId('text-input-channel_group_id')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('text-input-channel_group_id')
+      ).toBeInTheDocument();
     });
 
     it('renders stream profile select with options', () => {
@@ -493,7 +572,9 @@ describe('ChannelForm', () => {
     it('renders the channel number input', () => {
       setupMocks();
       render(<ChannelForm {...defaultProps()} />);
-      expect(screen.getByTestId('number-input-channel_number')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('number-input-channel_number')
+      ).toBeInTheDocument();
     });
 
     it('renders TVG-ID text input', () => {
@@ -505,7 +586,9 @@ describe('ChannelForm', () => {
     it('renders Gracenote StationId text input', () => {
       setupMocks();
       render(<ChannelForm {...defaultProps()} />);
-      expect(screen.getByTestId('text-input-tvc_guide_stationid')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('text-input-tvc_guide_stationid')
+      ).toBeInTheDocument();
     });
 
     it('renders EPG text input', () => {
@@ -622,7 +705,9 @@ describe('ChannelForm', () => {
 
     it('shows error notification when matchChannelEpg throws', async () => {
       const channel = makeChannel();
-      vi.mocked(ChannelUtils.matchChannelEpg).mockRejectedValue(new Error('Network'));
+      vi.mocked(ChannelUtils.matchChannelEpg).mockRejectedValue(
+        new Error('Network')
+      );
       setupMocks({ channel });
       render(<ChannelForm {...defaultProps({ channel })} />);
       fireEvent.click(screen.getByText('Auto Match'));
@@ -644,7 +729,10 @@ describe('ChannelForm', () => {
       render(<ChannelForm {...defaultProps({ channel })} />);
       fireEvent.click(screen.getByText('Auto Match'));
       await waitFor(() => {
-        expect(formMethods.setValue).toHaveBeenCalledWith('epg_data_id', 'tvg-1');
+        expect(formMethods.setValue).toHaveBeenCalledWith(
+          'epg_data_id',
+          'tvg-1'
+        );
       });
     });
   });
@@ -731,7 +819,6 @@ describe('ChannelForm', () => {
           expect.objectContaining({ color: 'green' })
         );
       });
-
     });
 
     it('creates a new logo when no matching logo exists', async () => {
@@ -745,8 +832,8 @@ describe('ChannelForm', () => {
         },
       });
       // tvg-2 has icon_url 'http://example.com/cnn.png' — but make allLogos not contain it
-      vi.mocked(useLogosStore).mockImplementation((sel) =>
-        sel({ logos: {} }) // empty logos so no match
+      vi.mocked(useLogosStore).mockImplementation(
+        (sel) => sel({ logos: {} }) // empty logos so no match
       );
       render(<ChannelForm {...defaultProps()} />);
       fireEvent.click(screen.getByText('Use EPG Logo'));
@@ -761,9 +848,7 @@ describe('ChannelForm', () => {
       setupMocks({
         formOverrides: { watchValues: { epg_data_id: 'tvg-2' } },
       });
-      vi.mocked(useLogosStore).mockImplementation((sel) =>
-        sel({ logos: {} })
-      );
+      vi.mocked(useLogosStore).mockImplementation((sel) => sel({ logos: {} }));
       render(<ChannelForm {...defaultProps()} />);
       fireEvent.click(screen.getByText('Use EPG Logo'));
       await waitFor(() => {
@@ -844,7 +929,9 @@ describe('ChannelForm', () => {
       fireEvent.click(screen.getByTestId('icon-square-plus').closest('button'));
       fireEvent.click(screen.getByTestId('channel-group-close'));
       await waitFor(() => {
-        expect(screen.queryByTestId('channel-group-form')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('channel-group-form')
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -854,8 +941,13 @@ describe('ChannelForm', () => {
       fireEvent.click(screen.getByTestId('icon-square-plus').closest('button'));
       fireEvent.click(screen.getByTestId('channel-group-save'));
       await waitFor(() => {
-        expect(formMethods.setValue).toHaveBeenCalledWith('channel_group_id', '99');
-        expect(screen.queryByTestId('channel-group-form')).not.toBeInTheDocument();
+        expect(formMethods.setValue).toHaveBeenCalledWith(
+          'channel_group_id',
+          '99'
+        );
+        expect(
+          screen.queryByTestId('channel-group-form')
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -923,7 +1015,9 @@ describe('ChannelForm', () => {
     });
 
     it('still calls onClose when submission throws', async () => {
-      vi.mocked(ChannelUtils.addChannel).mockRejectedValue(new Error('Server error'));
+      vi.mocked(ChannelUtils.addChannel).mockRejectedValue(
+        new Error('Server error')
+      );
       setupMocks();
       const onClose = vi.fn();
       render(<ChannelForm {...defaultProps({ onClose })} />);

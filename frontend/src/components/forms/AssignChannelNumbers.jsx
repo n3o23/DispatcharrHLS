@@ -1,27 +1,17 @@
 import React from 'react';
 import API from '../../api';
-import {
-  Button,
-  Modal,
-  Text,
-  Group,
-  Flex,
-  NumberInput,
-} from '@mantine/core';
+import { Button, Modal, Text, Group, Flex, NumberInput } from '@mantine/core';
 import { ListOrdered } from 'lucide-react';
 import { useForm } from '@mantine/form';
 import { showNotification } from '../../utils/notificationUtils.js';
 
 const assignChannelNumbers = (channelIds, starting_number) => {
-  return API.assignChannelNumbers(
-    channelIds,
-    starting_number
-  );
-}
+  return API.assignChannelNumbers(channelIds, starting_number);
+};
 
 const requeryChannels = () => {
   API.requeryChannels();
-}
+};
 
 const AssignChannelNumbers = ({ channelIds, isOpen, onClose }) => {
   const form = useForm({

@@ -614,8 +614,18 @@ describe('dateTimeUtils', () => {
 
     it('should contain all lowercase month names', () => {
       expect(dateTimeUtils.MONTH_NAMES).toEqual([
-        'january', 'february', 'march', 'april', 'may', 'june',
-        'july', 'august', 'september', 'october', 'november', 'december',
+        'january',
+        'february',
+        'march',
+        'april',
+        'may',
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december',
       ]);
     });
   });
@@ -635,8 +645,18 @@ describe('dateTimeUtils', () => {
 
     it('should contain all lowercase abbreviated month names', () => {
       expect(dateTimeUtils.MONTH_ABBR).toEqual([
-        'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-        'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+        'jan',
+        'feb',
+        'mar',
+        'apr',
+        'may',
+        'jun',
+        'jul',
+        'aug',
+        'sep',
+        'oct',
+        'nov',
+        'dec',
       ]);
     });
 

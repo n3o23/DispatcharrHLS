@@ -238,48 +238,85 @@ describe('ChannelUtils', () => {
 
   describe('getFormattedValues', () => {
     it('converts "0" stream_profile_id to null', () => {
-      const result = getFormattedValues({ stream_profile_id: '0', tvg_id: 'x', tvc_guide_stationid: 'y' });
+      const result = getFormattedValues({
+        stream_profile_id: '0',
+        tvg_id: 'x',
+        tvc_guide_stationid: 'y',
+      });
       expect(result.stream_profile_id).toBeNull();
     });
 
     it('converts empty string stream_profile_id to null', () => {
-      const result = getFormattedValues({ stream_profile_id: '', tvg_id: 'x', tvc_guide_stationid: 'y' });
+      const result = getFormattedValues({
+        stream_profile_id: '',
+        tvg_id: 'x',
+        tvc_guide_stationid: 'y',
+      });
       expect(result.stream_profile_id).toBeNull();
     });
 
     it('preserves non-zero stream_profile_id', () => {
-      const result = getFormattedValues({ stream_profile_id: '5', tvg_id: 'x', tvc_guide_stationid: 'y' });
+      const result = getFormattedValues({
+        stream_profile_id: '5',
+        tvg_id: 'x',
+        tvc_guide_stationid: 'y',
+      });
       expect(result.stream_profile_id).toBe('5');
     });
 
     it('converts empty tvg_id to null', () => {
-      const result = getFormattedValues({ stream_profile_id: '1', tvg_id: '', tvc_guide_stationid: 'y' });
+      const result = getFormattedValues({
+        stream_profile_id: '1',
+        tvg_id: '',
+        tvc_guide_stationid: 'y',
+      });
       expect(result.tvg_id).toBeNull();
     });
 
     it('preserves non-empty tvg_id', () => {
-      const result = getFormattedValues({ stream_profile_id: '1', tvg_id: 'hbo.us', tvc_guide_stationid: 'y' });
+      const result = getFormattedValues({
+        stream_profile_id: '1',
+        tvg_id: 'hbo.us',
+        tvc_guide_stationid: 'y',
+      });
       expect(result.tvg_id).toBe('hbo.us');
     });
 
     it('converts empty tvc_guide_stationid to null', () => {
-      const result = getFormattedValues({ stream_profile_id: '1', tvg_id: 'x', tvc_guide_stationid: '' });
+      const result = getFormattedValues({
+        stream_profile_id: '1',
+        tvg_id: 'x',
+        tvc_guide_stationid: '',
+      });
       expect(result.tvc_guide_stationid).toBeNull();
     });
 
     it('preserves non-empty tvc_guide_stationid', () => {
-      const result = getFormattedValues({ stream_profile_id: '1', tvg_id: 'x', tvc_guide_stationid: 'hbo-station' });
+      const result = getFormattedValues({
+        stream_profile_id: '1',
+        tvg_id: 'x',
+        tvc_guide_stationid: 'hbo-station',
+      });
       expect(result.tvc_guide_stationid).toBe('hbo-station');
     });
 
     it('does not mutate the original values object', () => {
-      const values = { stream_profile_id: '0', tvg_id: '', tvc_guide_stationid: '' };
+      const values = {
+        stream_profile_id: '0',
+        tvg_id: '',
+        tvc_guide_stationid: '',
+      };
       getFormattedValues(values);
       expect(values.stream_profile_id).toBe('0');
     });
 
     it('passes through unrelated fields unchanged', () => {
-      const result = getFormattedValues({ stream_profile_id: '1', tvg_id: 'x', tvc_guide_stationid: 'y', name: 'HBO' });
+      const result = getFormattedValues({
+        stream_profile_id: '1',
+        tvg_id: 'x',
+        tvc_guide_stationid: 'y',
+        name: 'HBO',
+      });
       expect(result.name).toBe('HBO');
     });
   });
@@ -314,7 +351,12 @@ describe('ChannelUtils', () => {
       it('calls API.setChannelEPG with channel id and new epg_data_id', async () => {
         const channel = makeChannel({ epg_data_id: 'epg-old' });
         const values = makeValues({ epg_data_id: 'epg-new' });
-        await handleEpgUpdate(channel, values, makeFormattedValues({ epg_data_id: 'epg-new' }), makeChannelStreams());
+        await handleEpgUpdate(
+          channel,
+          values,
+          makeFormattedValues({ epg_data_id: 'epg-new' }),
+          makeChannelStreams()
+        );
         expect(API.setChannelEPG).toHaveBeenCalledWith('ch-1', 'epg-new');
       });
 
@@ -338,7 +380,12 @@ describe('ChannelUtils', () => {
         const channel = makeChannel({ epg_data_id: 'epg-old' });
         const values = makeValues({ epg_data_id: 'epg-new' });
         // Only epg_data_id in formatted — after stripping it, nothing remains
-        await handleEpgUpdate(channel, values, { epg_data_id: 'epg-new' }, makeChannelStreams());
+        await handleEpgUpdate(
+          channel,
+          values,
+          { epg_data_id: 'epg-new' },
+          makeChannelStreams()
+        );
         expect(API.updateChannel).not.toHaveBeenCalled();
       });
     });
@@ -347,7 +394,12 @@ describe('ChannelUtils', () => {
       it('does not call API.setChannelEPG', async () => {
         const channel = makeChannel({ epg_data_id: 'epg-1' });
         const values = makeValues({ epg_data_id: 'epg-1' });
-        await handleEpgUpdate(channel, values, makeFormattedValues({ epg_data_id: 'epg-1' }), makeChannelStreams());
+        await handleEpgUpdate(
+          channel,
+          values,
+          makeFormattedValues({ epg_data_id: 'epg-1' }),
+          makeChannelStreams()
+        );
         expect(API.setChannelEPG).not.toHaveBeenCalled();
       });
 
@@ -366,7 +418,12 @@ describe('ChannelUtils', () => {
       it('handles empty channel streams array', async () => {
         const channel = makeChannel({ epg_data_id: 'epg-1' });
         const values = makeValues({ epg_data_id: 'epg-1' });
-        await handleEpgUpdate(channel, values, makeFormattedValues({ epg_data_id: 'epg-1' }), []);
+        await handleEpgUpdate(
+          channel,
+          values,
+          makeFormattedValues({ epg_data_id: 'epg-1' }),
+          []
+        );
         expect(API.updateChannel).toHaveBeenCalledWith(
           expect.objectContaining({ streams: [] })
         );
@@ -378,7 +435,12 @@ describe('ChannelUtils', () => {
       const channel = makeChannel({ epg_data_id: 'epg-old' });
       const values = makeValues({ epg_data_id: 'epg-new' });
       await expect(
-        handleEpgUpdate(channel, values, makeFormattedValues({ epg_data_id: 'epg-new' }), makeChannelStreams())
+        handleEpgUpdate(
+          channel,
+          values,
+          makeFormattedValues({ epg_data_id: 'epg-new' }),
+          makeChannelStreams()
+        )
       ).rejects.toThrow('EPG error');
     });
 
@@ -387,7 +449,12 @@ describe('ChannelUtils', () => {
       const channel = makeChannel({ epg_data_id: 'epg-1' });
       const values = makeValues({ epg_data_id: 'epg-1' });
       await expect(
-        handleEpgUpdate(channel, values, makeFormattedValues({ epg_data_id: 'epg-1' }), makeChannelStreams())
+        handleEpgUpdate(
+          channel,
+          values,
+          makeFormattedValues({ epg_data_id: 'epg-1' }),
+          makeChannelStreams()
+        )
       ).rejects.toThrow('Update error');
     });
   });

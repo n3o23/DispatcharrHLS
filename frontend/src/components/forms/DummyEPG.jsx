@@ -114,11 +114,17 @@ const DummyEPGForm = ({ epg, isOpen, onClose }) => {
   });
 
   const patternValidation = useMemo(() => {
-    const title = matchPattern(titlePattern, sampleTitle, 'Title pattern error');
-    const time  = matchPattern(timePattern,  sampleTitle, 'Time pattern error');
-    const date  = matchPattern(datePattern,  sampleTitle, 'Date pattern error');
+    const title = matchPattern(
+      titlePattern,
+      sampleTitle,
+      'Title pattern error'
+    );
+    const time = matchPattern(timePattern, sampleTitle, 'Time pattern error');
+    const date = matchPattern(datePattern, sampleTitle, 'Date pattern error');
 
-    const errors = [title.error, time.error, date.error].filter(Boolean).join('; ');
+    const errors = [title.error, time.error, date.error]
+      .filter(Boolean)
+      .join('; ');
 
     const timePlaceholders = buildTimePlaceholders(
       time.groups,
@@ -138,40 +144,48 @@ const DummyEPGForm = ({ epg, isOpen, onClose }) => {
     const hasMatch = title.matched || time.matched;
 
     return {
-      titleMatch:  title.matched,
-      timeMatch:   time.matched,
-      dateMatch:   date.matched,
+      titleMatch: title.matched,
+      timeMatch: time.matched,
+      dateMatch: date.matched,
       titleGroups: title.groups,
-      timeGroups:  time.groups,
-      dateGroups:  date.groups,
+      timeGroups: time.groups,
+      dateGroups: date.groups,
       calculatedPlaceholders: time.matched ? timePlaceholders : {},
       error: errors || null,
       ...applyTemplates(
-        { titleTemplate, subtitleTemplate, descriptionTemplate, upcomingTitleTemplate,
-          upcomingDescriptionTemplate, endedTitleTemplate, endedDescriptionTemplate,
-          channelLogoUrl, programPosterUrl },
+        {
+          titleTemplate,
+          subtitleTemplate,
+          descriptionTemplate,
+          upcomingTitleTemplate,
+          upcomingDescriptionTemplate,
+          endedTitleTemplate,
+          endedDescriptionTemplate,
+          channelLogoUrl,
+          programPosterUrl,
+        },
         allGroups,
         hasMatch
       ),
     };
   }, [
-      titlePattern,
-      timePattern,
-      datePattern,
-      sampleTitle,
-      titleTemplate,
-      subtitleTemplate,
-      descriptionTemplate,
-      upcomingTitleTemplate,
-      upcomingDescriptionTemplate,
-      endedTitleTemplate,
-      endedDescriptionTemplate,
-      channelLogoUrl,
-      programPosterUrl,
-      form.values.custom_properties?.timezone,
-      form.values.custom_properties?.output_timezone,
-      form.values.custom_properties?.program_duration,
-    ]);
+    titlePattern,
+    timePattern,
+    datePattern,
+    sampleTitle,
+    titleTemplate,
+    subtitleTemplate,
+    descriptionTemplate,
+    upcomingTitleTemplate,
+    upcomingDescriptionTemplate,
+    endedTitleTemplate,
+    endedDescriptionTemplate,
+    channelLogoUrl,
+    programPosterUrl,
+    form.values.custom_properties?.timezone,
+    form.values.custom_properties?.output_timezone,
+    form.values.custom_properties?.program_duration,
+  ]);
 
   useEffect(() => {
     if (epg) {

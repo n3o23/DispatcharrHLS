@@ -182,7 +182,7 @@ const ConnectionForm = ({ connection = null, isOpen, onClose }) => {
     const next = [...headers];
     next[idx] = { ...next[idx], key: newValue };
     setHeaders(next);
-  }
+  };
 
   const onHeaderValueChange = (idx, newValue) => {
     const next = [...headers];
@@ -191,14 +191,12 @@ const ConnectionForm = ({ connection = null, isOpen, onClose }) => {
       value: newValue,
     };
     setHeaders(next);
-  }
+  };
 
   const onHeaderRemove = (idx) => {
     const next = headers.filter((_, i) => i !== idx);
-    setHeaders(
-      next.length ? next : [{ key: '', value: '' }]
-    );
-  }
+    setHeaders(next.length ? next : [{ key: '', value: '' }]);
+  };
 
   return (
     <Modal opened={isOpen} size="lg" onClose={handleClose} title="Connection">
@@ -257,8 +255,12 @@ const ConnectionForm = ({ connection = null, isOpen, onClose }) => {
                       <HeaderRow
                         key={idx}
                         h={h}
-                        onKeyChange={(e) => onHeaderKeyChange(idx, e.target.value)}
-                        onValueChange={(e) => onHeaderValueChange(idx, e.target.value)}
+                        onKeyChange={(e) =>
+                          onHeaderKeyChange(idx, e.target.value)
+                        }
+                        onValueChange={(e) =>
+                          onHeaderValueChange(idx, e.target.value)
+                        }
                         onRemove={() => onHeaderRemove(idx)}
                       />
                     ))}

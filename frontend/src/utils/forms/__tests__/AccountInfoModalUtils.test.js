@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ── API mock ───────────────────────────────────────────────────────────────────
-vi.mock('../../../api.js', () => ({ default: { refreshAccountInfo: vi.fn() } }));
+vi.mock('../../../api.js', () => ({
+  default: { refreshAccountInfo: vi.fn() },
+}));
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Imports after mocks
@@ -118,7 +120,9 @@ describe('AccountInfoModalUtils', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2024-01-10T00:00:00Z'));
       // Jan 1, 2024 Unix timestamp
-      const past = String(Math.floor(new Date('2024-01-01T00:00:00Z').getTime() / 1000));
+      const past = String(
+        Math.floor(new Date('2024-01-01T00:00:00Z').getTime() / 1000)
+      );
       expect(getTimeRemaining(past)).toBe('Expired');
     });
 
@@ -211,7 +215,9 @@ describe('AccountInfoModalUtils', () => {
     it('propagates rejection from API.refreshAccountInfo', async () => {
       const error = new Error('network error');
       vi.mocked(API.refreshAccountInfo).mockRejectedValue(error);
-      await expect(refreshAccountInfo({ id: 'profile-123' })).rejects.toThrow('network error');
+      await expect(refreshAccountInfo({ id: 'profile-123' })).rejects.toThrow(
+        'network error'
+      );
     });
 
     it('calls API.refreshAccountInfo exactly once', async () => {

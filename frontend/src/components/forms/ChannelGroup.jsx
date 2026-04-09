@@ -11,10 +11,10 @@ const updateChannelGroup = (channelGroup, values) => {
     id: channelGroup.id,
     ...values,
   });
-}
+};
 const addChannelGroup = (values) => {
   return API.addChannelGroup(values);
-}
+};
 
 const ChannelGroup = ({ channelGroup = null, isOpen, onClose }) => {
   const canEditChannelGroup = useChannelsStore((s) => s.canEditChannelGroup);

@@ -33,7 +33,7 @@ describe('CronBuilderUtils', () => {
     });
   });
 
-// ── DAYS_OF_WEEK ───────────────────────────────────────────────────────────────
+  // ── DAYS_OF_WEEK ───────────────────────────────────────────────────────────────
 
   describe('DAYS_OF_WEEK', () => {
     it('contains 8 entries (wildcard + 7 days)', () => {
@@ -53,11 +53,19 @@ describe('CronBuilderUtils', () => {
 
     it('numeric entries run 0-6', () => {
       const numeric = DAYS_OF_WEEK.filter((d) => d.value !== '*');
-      expect(numeric.map((d) => d.value)).toEqual(['0', '1', '2', '3', '4', '5', '6']);
+      expect(numeric.map((d) => d.value)).toEqual([
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+      ]);
     });
   });
 
-// ── FREQUENCY_OPTIONS ──────────────────────────────────────────────────────────
+  // ── FREQUENCY_OPTIONS ──────────────────────────────────────────────────────────
 
   describe('FREQUENCY_OPTIONS', () => {
     it('contains exactly 4 options', () => {
@@ -77,7 +85,7 @@ describe('CronBuilderUtils', () => {
     });
   });
 
-// ── CRON_FIELDS ────────────────────────────────────────────────────────────────
+  // ── CRON_FIELDS ────────────────────────────────────────────────────────────────
 
   describe('CRON_FIELDS', () => {
     it('contains exactly 5 fields', () => {
@@ -97,7 +105,7 @@ describe('CronBuilderUtils', () => {
     });
   });
 
-// ── buildCron ──────────────────────────────────────────────────────────────────
+  // ── buildCron ──────────────────────────────────────────────────────────────────
 
   describe('buildCron', () => {
     describe('hourly', () => {
@@ -171,7 +179,7 @@ describe('CronBuilderUtils', () => {
     });
   });
 
-// ── parseCronPreset ────────────────────────────────────────────────────────────
+  // ── parseCronPreset ────────────────────────────────────────────────────────────
 
   describe('parseCronPreset', () => {
     describe('hourly detection', () => {
@@ -279,7 +287,7 @@ describe('CronBuilderUtils', () => {
     });
   });
 
-// ── updateCronPart ─────────────────────────────────────────────────────────────
+  // ── updateCronPart ─────────────────────────────────────────────────────────────
 
   describe('updateCronPart', () => {
     describe('valid 5-part cron', () => {
@@ -342,7 +350,9 @@ describe('CronBuilderUtils', () => {
       });
 
       it('accepts comma-separated values like 0,15,30,45', () => {
-        expect(updateCronPart('* * * * *', 0, '0,15,30,45')).toBe('0,15,30,45 * * * *');
+        expect(updateCronPart('* * * * *', 0, '0,15,30,45')).toBe(
+          '0,15,30,45 * * * *'
+        );
       });
     });
   });

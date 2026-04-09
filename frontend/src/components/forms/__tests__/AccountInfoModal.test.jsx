@@ -59,9 +59,7 @@ vi.mock('@mantine/core', () => ({
   TableTd: ({ children }) => <td>{children}</td>,
   TableTr: ({ children }) => <tr>{children}</tr>,
   Text: ({ children }) => <span>{children}</span>,
-  Tooltip: ({ children, label }) => (
-    <div data-tooltip={label}>{children}</div>
-  ),
+  Tooltip: ({ children, label }) => <div data-tooltip={label}>{children}</div>,
 }));
 
 // ── lucide-react ───────────────────────────────────────────────────────────────
@@ -109,13 +107,11 @@ const makeProfile = (overrides = {}) => ({
 });
 
 const setupMocks = ({
-                      profiles = {},
-                      timeRemaining = '10 days 5 hours',
-                      formattedTimestamp = 'Nov 14, 2023',
-                    } = {}) => {
-  vi.mocked(usePlaylistsStore).mockImplementation((sel) =>
-    sel({ profiles })
-  );
+  profiles = {},
+  timeRemaining = '10 days 5 hours',
+  formattedTimestamp = 'Nov 14, 2023',
+} = {}) => {
+  vi.mocked(usePlaylistsStore).mockImplementation((sel) => sel({ profiles }));
   vi.mocked(getTimeRemaining).mockReturnValue(timeRemaining);
   vi.mocked(formatTimestamp).mockReturnValue(formattedTimestamp);
   vi.mocked(refreshAccountInfo).mockResolvedValue({ success: true });
@@ -397,7 +393,10 @@ describe('AccountInfoModal', () => {
     it('disables the refresh button while refreshing', async () => {
       setupMocks();
       vi.mocked(refreshAccountInfo).mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 200))
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ success: true }), 200)
+          )
       );
       render(<AccountInfoModal {...defaultProps()} />);
       fireEvent.click(screen.getByTestId('action-icon'));
@@ -409,7 +408,9 @@ describe('AccountInfoModal', () => {
 
     it('re-enables the refresh button after refresh fails', async () => {
       setupMocks();
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(refreshAccountInfo).mockRejectedValue(new Error('fail'));
       render(<AccountInfoModal {...defaultProps()} />);
       fireEvent.click(screen.getByTestId('action-icon'));

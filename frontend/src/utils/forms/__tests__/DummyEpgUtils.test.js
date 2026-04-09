@@ -3,27 +3,52 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // ── Module mocks (must be before imports) ─────────────────────────────────────
 vi.mock('../../../api.js', () => ({
   default: {
-    getTimezones:  vi.fn(),
-    addEPG:        vi.fn(),
-    updateEPG:     vi.fn(),
+    getTimezones: vi.fn(),
+    addEPG: vi.fn(),
+    updateEPG: vi.fn(),
   },
 }));
 
 vi.mock('../../dateTimeUtils.js', () => ({
-  format:      vi.fn(),
-  getDay:      vi.fn(),
-  getHour:     vi.fn(),
-  getMinute:   vi.fn(),
-  getMonth:    vi.fn(),
-  getNow:      vi.fn(),
-  getYear:     vi.fn(),
-  MONTH_ABBR:  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-  MONTH_NAMES: ['January','February','March','April','May','June',
-    'July','August','September','October','November','December'],
-  setHour:     vi.fn((dt) => dt),
-  setMinute:   vi.fn((dt) => dt),
-  setSecond:   vi.fn((dt) => dt),
-  setTz:       vi.fn(),
+  format: vi.fn(),
+  getDay: vi.fn(),
+  getHour: vi.fn(),
+  getMinute: vi.fn(),
+  getMonth: vi.fn(),
+  getNow: vi.fn(),
+  getYear: vi.fn(),
+  MONTH_ABBR: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
+  MONTH_NAMES: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ],
+  setHour: vi.fn((dt) => dt),
+  setMinute: vi.fn((dt) => dt),
+  setSecond: vi.fn((dt) => dt),
+  setTz: vi.fn(),
 }));
 
 // ── Imports after mocks ────────────────────────────────────────────────────────
@@ -55,30 +80,30 @@ const makeEPG = (overrides = {}) => ({
 });
 
 const makeCustom = (overrides = {}) => ({
-  title_pattern:                 '(?<title>.+)',
-  time_pattern:                  '(?<hour>\\d+):(?<minute>\\d+)',
-  date_pattern:                  '',
-  timezone:                      'US/Eastern',
-  output_timezone:               '',
-  program_duration:              180,
-  sample_title:                  'Test Show 9:00 PM',
-  title_template:                '{title}',
-  subtitle_template:             '',
-  description_template:          '',
-  upcoming_title_template:       '',
+  title_pattern: '(?<title>.+)',
+  time_pattern: '(?<hour>\\d+):(?<minute>\\d+)',
+  date_pattern: '',
+  timezone: 'US/Eastern',
+  output_timezone: '',
+  program_duration: 180,
+  sample_title: 'Test Show 9:00 PM',
+  title_template: '{title}',
+  subtitle_template: '',
+  description_template: '',
+  upcoming_title_template: '',
   upcoming_description_template: '',
-  ended_title_template:          '',
-  ended_description_template:    '',
-  fallback_title_template:       '',
+  ended_title_template: '',
+  ended_description_template: '',
+  fallback_title_template: '',
   fallback_description_template: '',
-  channel_logo_url:              '',
-  program_poster_url:            '',
-  name_source:                   'channel',
-  stream_index:                  1,
-  category:                      '',
-  include_date:                  true,
-  include_live:                  false,
-  include_new:                   false,
+  channel_logo_url: '',
+  program_poster_url: '',
+  name_source: 'channel',
+  stream_index: 1,
+  category: '',
+  include_date: true,
+  include_live: false,
+  include_new: false,
   ...overrides,
 });
 
@@ -86,7 +111,6 @@ const makeCustom = (overrides = {}) => ({
 // Tests
 // ──────────────────────────────────────────────────────────────────────────────
 describe('DummyEpgUtils', () => {
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -94,7 +118,9 @@ describe('DummyEpgUtils', () => {
   // ── getTimezones ───────────────────────────────────────────────────────────
   describe('getTimezones', () => {
     it('calls API.getTimezones and returns its result', async () => {
-      vi.mocked(API.getTimezones).mockResolvedValue({ timezones: ['UTC', 'US/Eastern'] });
+      vi.mocked(API.getTimezones).mockResolvedValue({
+        timezones: ['UTC', 'US/Eastern'],
+      });
       const result = await getTimezones();
       expect(API.getTimezones).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ timezones: ['UTC', 'US/Eastern'] });
@@ -125,13 +151,19 @@ describe('DummyEpgUtils', () => {
   // ── updateEPG ──────────────────────────────────────────────────────────────
   describe('updateEPG', () => {
     it('calls API.updateEPG with values merged with epg.id', async () => {
-      const epg    = makeEPG({ id: 42 });
+      const epg = makeEPG({ id: 42 });
       const values = { name: 'Updated EPG' };
-      vi.mocked(API.updateEPG).mockResolvedValue({ id: 42, name: 'Updated EPG' });
+      vi.mocked(API.updateEPG).mockResolvedValue({
+        id: 42,
+        name: 'Updated EPG',
+      });
 
       const result = await updateEPG(values, epg);
 
-      expect(API.updateEPG).toHaveBeenCalledWith({ name: 'Updated EPG', id: 42 });
+      expect(API.updateEPG).toHaveBeenCalledWith({
+        name: 'Updated EPG',
+        id: 42,
+      });
       expect(result).toMatchObject({ id: 42 });
     });
 
@@ -139,7 +171,9 @@ describe('DummyEpgUtils', () => {
       const epg = makeEPG({ id: 99 });
       vi.mocked(API.updateEPG).mockResolvedValue({});
       await updateEPG({ name: 'X' }, epg);
-      expect(API.updateEPG).toHaveBeenCalledWith(expect.objectContaining({ id: 99 }));
+      expect(API.updateEPG).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 99 })
+      );
     });
 
     it('propagates rejection from API.updateEPG', async () => {
@@ -153,8 +187,8 @@ describe('DummyEpgUtils', () => {
     it('returns an object with name, is_active, source_type, and custom_properties', () => {
       const result = getDummyEpgFormInitialValues();
       expect(result).toMatchObject({
-        name:        expect.any(String),
-        is_active:   expect.any(Boolean),
+        name: expect.any(String),
+        is_active: expect.any(Boolean),
         source_type: 'dummy',
       });
       expect(result.custom_properties).toBeDefined();
@@ -165,7 +199,9 @@ describe('DummyEpgUtils', () => {
     });
 
     it('sets include_date to true by default', () => {
-      expect(getDummyEpgFormInitialValues().custom_properties.include_date).toBe(true);
+      expect(
+        getDummyEpgFormInitialValues().custom_properties.include_date
+      ).toBe(true);
     });
 
     it('sets include_live and include_new to false by default', () => {
@@ -175,15 +211,21 @@ describe('DummyEpgUtils', () => {
     });
 
     it('defaults name_source to "channel"', () => {
-      expect(getDummyEpgFormInitialValues().custom_properties.name_source).toBe('channel');
+      expect(getDummyEpgFormInitialValues().custom_properties.name_source).toBe(
+        'channel'
+      );
     });
 
     it('defaults program_duration to 180', () => {
-      expect(getDummyEpgFormInitialValues().custom_properties.program_duration).toBe(180);
+      expect(
+        getDummyEpgFormInitialValues().custom_properties.program_duration
+      ).toBe(180);
     });
 
     it('defaults stream_index to 1', () => {
-      expect(getDummyEpgFormInitialValues().custom_properties.stream_index).toBe(1);
+      expect(
+        getDummyEpgFormInitialValues().custom_properties.stream_index
+      ).toBe(1);
     });
   });
 
@@ -201,7 +243,10 @@ describe('DummyEpgUtils', () => {
     });
 
     it('preserves provided values over defaults', () => {
-      const custom = makeCustom({ timezone: 'US/Pacific', program_duration: 60 });
+      const custom = makeCustom({
+        timezone: 'US/Pacific',
+        program_duration: 60,
+      });
       const result = buildCustomProperties(custom);
       expect(result.timezone).toBe('US/Pacific');
       expect(result.program_duration).toBe(60);
@@ -224,17 +269,17 @@ describe('DummyEpgUtils', () => {
 
     it('maps all template fields', () => {
       const custom = makeCustom({
-        title_template:                'T:{title}',
-        subtitle_template:             'S:{title}',
-        description_template:          'D:{title}',
-        upcoming_title_template:       'U:{title}',
+        title_template: 'T:{title}',
+        subtitle_template: 'S:{title}',
+        description_template: 'D:{title}',
+        upcoming_title_template: 'U:{title}',
         upcoming_description_template: 'UD:{title}',
-        ended_title_template:          'E:{title}',
-        ended_description_template:    'ED:{title}',
-        fallback_title_template:       'FT:{title}',
+        ended_title_template: 'E:{title}',
+        ended_description_template: 'ED:{title}',
+        fallback_title_template: 'FT:{title}',
         fallback_description_template: 'FD:{title}',
-        channel_logo_url:              'http://logo',
-        program_poster_url:            'http://poster',
+        channel_logo_url: 'http://logo',
+        program_poster_url: 'http://poster',
       });
       const result = buildCustomProperties(custom);
       expect(result.title_template).toBe('T:{title}');
@@ -288,7 +333,9 @@ describe('DummyEpgUtils', () => {
     });
 
     it('returns null for a complex valid regex with named groups', () => {
-      expect(validateCustomTitlePattern('(?<title>[A-Z].+)\\s(?<time>\\d+:\\d+)')).toBeNull();
+      expect(
+        validateCustomTitlePattern('(?<title>[A-Z].+)\\s(?<time>\\d+:\\d+)')
+      ).toBeNull();
     });
   });
 
@@ -398,7 +445,11 @@ describe('DummyEpgUtils', () => {
         'Test Show 9:00'
       );
       expect(result.matched).toBe(true);
-      expect(result.groups).toMatchObject({ title: 'Test Show', hour: '9', minute: '00' });
+      expect(result.groups).toMatchObject({
+        title: 'Test Show',
+        hour: '9',
+        minute: '00',
+      });
     });
   });
 
@@ -425,7 +476,10 @@ describe('DummyEpgUtils', () => {
     });
 
     it('adds normalized keys for multiple groups', () => {
-      const result = addNormalizedGroups({ title: 'Show', subtitle: 'Épilogue' });
+      const result = addNormalizedGroups({
+        title: 'Show',
+        subtitle: 'Épilogue',
+      });
       expect(result.title_normalize).toBeDefined();
       expect(result.subtitle_normalize).toBeDefined();
     });
@@ -434,15 +488,15 @@ describe('DummyEpgUtils', () => {
   // ── applyTemplates ─────────────────────────────────────────────────────────
   describe('applyTemplates', () => {
     const templates = {
-      titleTemplate:               '{title}',
-      subtitleTemplate:            '{subtitle}',
-      descriptionTemplate:         '{title} - {subtitle}',
-      upcomingTitleTemplate:       'Upcoming: {title}',
+      titleTemplate: '{title}',
+      subtitleTemplate: '{subtitle}',
+      descriptionTemplate: '{title} - {subtitle}',
+      upcomingTitleTemplate: 'Upcoming: {title}',
       upcomingDescriptionTemplate: 'Details for {title}',
-      endedTitleTemplate:          'Ended: {title}',
-      endedDescriptionTemplate:    'Summary of {title}',
-      channelLogoUrl:              'http://logo/{title}',
-      programPosterUrl:            'http://poster/{title}',
+      endedTitleTemplate: 'Ended: {title}',
+      endedDescriptionTemplate: 'Summary of {title}',
+      channelLogoUrl: 'http://logo/{title}',
+      programPosterUrl: 'http://poster/{title}',
     };
 
     const groups = { title: 'Test Show', subtitle: 'Pilot' };
@@ -479,7 +533,9 @@ describe('DummyEpgUtils', () => {
 
     it('fills programPosterUrl', () => {
       const result = applyTemplates(templates, groups, true);
-      expect(result.formattedProgramPosterUrl).toBe('http://poster/Test%20Show');
+      expect(result.formattedProgramPosterUrl).toBe(
+        'http://poster/Test%20Show'
+      );
     });
 
     it('returns empty string for template that has no matching placeholder', () => {
@@ -510,10 +566,10 @@ describe('DummyEpgUtils', () => {
   describe('buildTimePlaceholders', () => {
     beforeEach(() => {
       // Provide realistic return values from dateTimeUtils
-      vi.mocked(dateTimeUtils.getHour).mockReturnValue(21);    // 9 PM
+      vi.mocked(dateTimeUtils.getHour).mockReturnValue(21); // 9 PM
       vi.mocked(dateTimeUtils.getMinute).mockReturnValue(0);
       vi.mocked(dateTimeUtils.getDay).mockReturnValue(15);
-      vi.mocked(dateTimeUtils.getMonth).mockReturnValue(5);    // June (0-indexed)
+      vi.mocked(dateTimeUtils.getMonth).mockReturnValue(5); // June (0-indexed)
       vi.mocked(dateTimeUtils.getYear).mockReturnValue(2024);
       vi.mocked(dateTimeUtils.format).mockImplementation((dt, fmt) => fmt);
       vi.mocked(dateTimeUtils.setHour).mockImplementation((dt) => dt);
@@ -525,20 +581,38 @@ describe('DummyEpgUtils', () => {
 
     it('returns an object when given valid time groups', () => {
       const timeGroups = { hour: '9', minute: '00', ampm: 'PM' };
-      const result = buildTimePlaceholders(timeGroups, {}, 'US/Eastern', '', 180);
+      const result = buildTimePlaceholders(
+        timeGroups,
+        {},
+        'US/Eastern',
+        '',
+        180
+      );
       expect(result).toBeDefined();
       expect(typeof result).toBe('object');
     });
 
     it('returns starttime key when time groups have hour and minute', () => {
       const timeGroups = { hour: '9', minute: '00', ampm: 'PM' };
-      const result = buildTimePlaceholders(timeGroups, {}, 'US/Eastern', '', 180);
+      const result = buildTimePlaceholders(
+        timeGroups,
+        {},
+        'US/Eastern',
+        '',
+        180
+      );
       expect(result).toHaveProperty('starttime');
     });
 
     it('returns endtime key calculated from duration', () => {
       const timeGroups = { hour: '9', minute: '00', ampm: 'PM' };
-      const result = buildTimePlaceholders(timeGroups, {}, 'US/Eastern', '', 180);
+      const result = buildTimePlaceholders(
+        timeGroups,
+        {},
+        'US/Eastern',
+        '',
+        180
+      );
       expect(result).toHaveProperty('endtime');
     });
 
@@ -555,7 +629,13 @@ describe('DummyEpgUtils', () => {
     it('incorporates date groups when provided', () => {
       const timeGroups = { hour: '9', minute: '00' };
       const dateGroups = { year: '2024', month: '06', day: '15' };
-      const result = buildTimePlaceholders(timeGroups, dateGroups, 'US/Eastern', '', 180);
+      const result = buildTimePlaceholders(
+        timeGroups,
+        dateGroups,
+        'US/Eastern',
+        '',
+        180
+      );
       expect(result).toBeDefined();
     });
   });
