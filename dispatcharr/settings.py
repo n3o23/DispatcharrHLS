@@ -266,7 +266,7 @@ REST_FRAMEWORK = {
         "apps.accounts.authentication.ApiKeyAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "apps.accounts.permissions.Authenticated",
+        "apps.accounts.permissions.IsAdmin",
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_THROTTLE_CLASSES": [],
