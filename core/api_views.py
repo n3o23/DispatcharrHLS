@@ -9,7 +9,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes, action
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
@@ -330,8 +330,8 @@ def environment(request):
 @extend_schema(
     description="Get application version information",
 )
-
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def version(request):
     # Import version information
     from version import __version__, __timestamp__
