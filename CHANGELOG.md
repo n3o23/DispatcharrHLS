@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- FloatingVideo player: the native video controls (timeline, play/pause, volume) are now hidden by default when a live stream starts and only appear when the user hovers over the player.
 - Enhanced Swagger UI authorization dialog: registered a custom `OpenApiAuthenticationExtension` for `ApiKeyAuthentication` so drf-spectacular now generates an `ApiKeyAuth (apiKey)` entry alongside `jwtAuth`. Both entries include descriptive text linking to the relevant endpoints (`/api/accounts/token/`, `/api/accounts/api-keys/generate/`, `/api/accounts/api-keys/revoke/`).
 - Refactored frontend form components (`AccountInfoModal`, `AssignChannelNumbers`, `Channel`, `ChannelBatch`, `ChannelGroup`, `Connection`, `CronBuilder`, `DummyEPG`, and `EPG`) to extract business logic into dedicated utility modules under `src/utils/forms/`. Each extracted module is covered by unit tests. Mantine compound component references (`Table.Tbody`, `Popover.Target`, `Accordion.Item`, etc.) have been updated to use flat named imports. — Thanks [@nick4810](https://github.com/nick4810)
 - Improved the EPG BOM fix from v0.22.1: replaced the `lstrip(b'\xef\xbb\xbf')` / `startswith` approach with `start.find(b'<?xml')`, which locates the XML declaration regardless of any leading bytes BOM, whitespace, or other encoding markers without needing to know what those bytes are.
