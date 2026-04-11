@@ -163,7 +163,7 @@ class AuthViewSet(viewsets.ViewSet):
         return []
 
     @extend_schema(
-        description="Authenticate and log in a user",
+        description="Alias for POST /api/accounts/token/ — returns JWT access and refresh tokens.",
         request=inline_serializer(
             name="LoginRequest",
             fields={
@@ -173,55 +173,10 @@ class AuthViewSet(viewsets.ViewSet):
         ),
     )
     def login(self, request):
-        """Logs in a user and returns user details"""
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(request, username=username, password=password)
-
-        # Get client info for logging
-        from core.utils import log_system_event
-        client_ip = request.META.get('REMOTE_ADDR', 'unknown')
-        user_agent = request.META.get('HTTP_USER_AGENT', 'unknown')
-        logger.debug(f"Login attempt via session: user={username} ip={client_ip}")
-
-        if user:
-            login(request, user)
-            # Update last_login timestamp
-            from django.utils import timezone
-            user.last_login = timezone.now()
-            user.save(update_fields=['last_login'])
-
-            # Log successful login
-            log_system_event(
-                event_type='login_success',
-                user=username,
-                client_ip=client_ip,
-                user_agent=user_agent,
-            )
-            logger.info(f"Login success via session: user={username} ip={client_ip}")
-
-            return Response(
-                {
-                    "message": "Login successful",
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "email": user.email,
-                        "groups": list(user.groups.values_list("name", flat=True)),
-                    },
-                }
-            )
-
-        # Log failed login attempt
-        log_system_event(
-            event_type='login_failed',
-            user=username or 'unknown',
-            client_ip=client_ip,
-            user_agent=user_agent,
-            reason='Invalid credentials',
-        )
-        logger.info(f"Login failed via session: user={username} ip={client_ip}")
-        return Response({"error": "Invalid credentials"}, status=400)
+        """Delegates to TokenObtainPairView (JWT login). Throttling, logging, and
+        network access checks are handled there."""
+        view = TokenObtainPairView.as_view()
+        return view(request._request)
 
     @extend_schema(
         description="Log out the current user",
