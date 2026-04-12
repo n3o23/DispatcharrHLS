@@ -929,7 +929,8 @@ def next_stream(request, channel_id):
             channel_id,
             stream_info["url"],
             stream_info["user_agent"],
-            next_stream_id,  # Pass the stream_id to be stored in Redis
+            next_stream_id,
+            stream_info.get("m3u_profile_id"),
         )
 
         if result.get("status") == "error":
