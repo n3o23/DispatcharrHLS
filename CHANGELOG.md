@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed uploading a local M3U file with no expiration date set sending the string `"null"` as the `exp_date` field in the `FormData` request, causing a 400 validation error from the API. Null/undefined values are now skipped when building the `FormData` body, matching the behaviour already present in the update path.
 - Fixed `PATCH /api/channels/channels/edit/bulk/` returning a 500 error when the request body included a `streams` list. The bulk edit handler was iterating `validated_data` directly and calling `setattr(channel, "streams", value)`, which Django prohibits on ManyToMany fields. Also added an `@extend_schema` decorator so the Swagger UI correctly documents the endpoint as accepting a JSON array and shows the `streams` field. (Fixes #883)
 - Fixed several incorrect or incomplete OpenAPI (`@extend_schema`) schemas across the API:
   - `POST /api/epg/import/` — request body was undocumented; now correctly shows the `id` field. Description updated from "import" to "refresh" to match frontend and backend terminology.

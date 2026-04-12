@@ -1193,6 +1193,7 @@ export default class API {
       if (values.file) {
         body = new FormData();
         for (const prop in values) {
+          if (values[prop] === null || values[prop] === undefined) continue;
           body.append(prop, values[prop]);
         }
       } else {
@@ -2050,9 +2051,7 @@ export default class API {
 
   static async getAvailablePlugins() {
     try {
-      const response = await request(
-        `${host}/api/plugins/repos/available/`
-      );
+      const response = await request(`${host}/api/plugins/repos/available/`);
       return response.plugins || [];
     } catch (e) {
       errorNotification('Failed to retrieve available plugins', e);
