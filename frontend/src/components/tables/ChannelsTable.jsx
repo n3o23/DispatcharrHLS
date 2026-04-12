@@ -388,6 +388,7 @@ const ChannelsTable = ({ onReady }) => {
     cachedlogos: true,
     tvg_id_source: 'channel_number',
     days: 0,
+    prev_days: 0,
   });
 
   /**
@@ -758,6 +759,8 @@ const ChannelsTable = ({ onReady }) => {
     if (epgParams.tvg_id_source !== 'channel_number')
       params.append('tvg_id_source', epgParams.tvg_id_source);
     if (epgParams.days > 0) params.append('days', epgParams.days.toString());
+    if (epgParams.prev_days > 0)
+      params.append('prev_days', epgParams.prev_days.toString());
 
     const baseUrl = epgUrl;
     return params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
@@ -1442,7 +1445,7 @@ const ChannelsTable = ({ onReady }) => {
                       ]}
                     />
                     <NumberInput
-                      label="Days (0 = all data)"
+                      label="Days forward (0 = all)"
                       size="xs"
                       min={0}
                       max={365}
@@ -1451,6 +1454,19 @@ const ChannelsTable = ({ onReady }) => {
                         setEpgParams((prev) => ({
                           ...prev,
                           days: value || 0,
+                        }))
+                      }
+                    />
+                    <NumberInput
+                      label="Days back (0 = none)"
+                      size="xs"
+                      min={0}
+                      max={30}
+                      value={epgParams.prev_days}
+                      onChange={(value) =>
+                        setEpgParams((prev) => ({
+                          ...prev,
+                          prev_days: value || 0,
                         }))
                       }
                     />

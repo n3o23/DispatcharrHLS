@@ -54,6 +54,8 @@ const User = ({ user = null, isOpen, onClose }) => {
       xc_password: '',
       channel_profiles: [],
       hide_adult_content: false,
+      epg_days: 0,
+      epg_prev_days: 0,
     },
 
     validate: (values) => ({
@@ -99,6 +101,12 @@ const User = ({ user = null, isOpen, onClose }) => {
     // Save hide_adult_content in custom_properties
     customProps.hide_adult_content = values.hide_adult_content || false;
     delete values.hide_adult_content;
+
+    // Save EPG defaults in custom_properties
+    customProps.epg_days = values.epg_days || 0;
+    delete values.epg_days;
+    customProps.epg_prev_days = values.epg_prev_days || 0;
+    delete values.epg_prev_days;
 
     values.custom_properties = customProps;
 
@@ -152,6 +160,8 @@ const User = ({ user = null, isOpen, onClose }) => {
             : ['0'],
         xc_password: customProps.xc_password || '',
         hide_adult_content: customProps.hide_adult_content || false,
+        epg_days: customProps.epg_days || 0,
+        epg_prev_days: customProps.epg_prev_days || 0,
       });
 
       if (customProps.xc_password) {
@@ -352,6 +362,24 @@ const User = ({ user = null, isOpen, onClose }) => {
                 </Tooltip>
               </Box>
             )}
+
+            <NumberInput
+              label="EPG: Default days forward (0 = all)"
+              description="How many future days of EPG data to include by default"
+              min={0}
+              max={365}
+              {...form.getInputProps('epg_days')}
+              key={form.key('epg_days')}
+            />
+
+            <NumberInput
+              label="EPG: Default days back (0 = none)"
+              description="How many past days of EPG data to include by default (max 30)"
+              min={0}
+              max={30}
+              {...form.getInputProps('epg_prev_days')}
+              key={form.key('epg_prev_days')}
+            />
 
             {canGenerateKey && (
               <Stack>

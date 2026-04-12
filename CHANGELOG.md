@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **EPG historical data window**: the EPG XML output and XC EPG API now support a `prev_days` URL parameter (e.g. `&prev_days=3`) to include past programs in the EPG response. This allows third-party players that request historical program schedules to receive the data they need. The EPG URL builder in the Channels page exposes "Days forward" and "Days back" controls. Per-user defaults for both values (`epg_days` / `epg_prev_days`) can be configured in the User settings modal and are applied automatically when no URL parameter is present. (Closes #1154)
 - **Plugin Hub**: administrators can now browse, install, and update plugins directly from remote repositories via a new Plugin Hub page in Settings. (Closes #393) — Thanks [@sethwv](https://github.com/sethwv)
   - Install plugins directly from the hub: the release zip is downloaded, SHA256 integrity is verified, and the plugin is installed atomically.
   - Update managed plugins when a newer version is available from their source repo. Version compatibility constraints (`min_dispatcharr_version` / `max_dispatcharr_version`) are enforced at install time.

@@ -194,7 +194,7 @@ def generate_m3u(request, profile_name=None, user=None):
         epg_base_url = build_absolute_uri_with_port(request, reverse('output:epg_endpoint', args=[profile_name]) if profile_name else reverse('output:epg_endpoint'))
 
         # Optionally preserve certain query parameters
-        preserved_params = ['tvg_id_source', 'cachedlogos', 'days']
+        preserved_params = ['tvg_id_source', 'cachedlogos', 'days', 'prev_days']
         query_params = {k: v for k, v in request.GET.items() if k in preserved_params}
         if query_params:
             from urllib.parse import urlencode
@@ -1339,21 +1339,35 @@ def generate_epg(request, profile_name=None, user=None):
         tvg_id_source = request.GET.get('tvg_id_source', 'channel_number').lower()
 
         # Get the number of days for EPG data
+        # The user account default (custom_properties['epg_days']) is used when the
+        # URL parameter is absent, so XC clients that cannot pass query params still benefit.
+        user_custom = (user.custom_properties or {}) if user else {}
         try:
-            # Default to 0 days (everything) for real EPG if not specified
-            days_param = request.GET.get('days', '0')
+            default_days = int(user_custom.get('epg_days', 0))
+            days_param = request.GET.get('days', str(default_days))
             num_days = int(days_param)
             # Set reasonable limits
             num_days = max(0, min(num_days, 365))  # Between 0 and 365 days
         except ValueError:
             num_days = 0  # Default to all data if invalid value
 
+        # Get number of previous/historical days to include (for catch-up/timeshift support).
+        # The user account default (custom_properties['epg_prev_days']) is used when the
+        # URL parameter is absent, so XC clients that cannot pass query params still benefit.
+        try:
+            default_prev_days = int(user_custom.get('epg_prev_days', 0))
+            prev_days = int(request.GET.get('prev_days', default_prev_days))
+            prev_days = max(0, min(prev_days, 30))  # Hard cap at 30 days lookback
+        except (ValueError, TypeError):
+            prev_days = 0
+
         # For dummy EPG, use either the specified value or default to 3 days
         dummy_days = num_days if num_days > 0 else 3
 
-        # Calculate cutoff date for EPG data filtering (only if days > 0)
+        # Calculate cutoff dates for EPG data filtering
         now = django_timezone.now()
         cutoff_date = now + timedelta(days=num_days) if num_days > 0 else None
+        lookback_cutoff = now - timedelta(days=prev_days)
 
         # Build collision-free channel number mapping for XC clients (if user is authenticated)
         # XC clients require integer channel numbers, so we need to ensure no conflicts
@@ -1643,13 +1657,14 @@ def generate_epg(request, profile_name=None, user=None):
                 # For real EPG data - filter only if days parameter was specified
                 if num_days > 0:
                     programs_qs = channel.epg_data.programs.filter(
-                        end_time__gte=now,
+                        end_time__gte=lookback_cutoff,
                         start_time__lt=cutoff_date
                     ).order_by('id')  # Explicit ordering for consistent chunking
                 else:
-                    # Return all non-expired programs if days=0 or not specified
+                    # Return programs from lookback_cutoff onward (includes recent past
+                    # for catch-up when prev_days > 0, otherwise current/future only)
                     programs_qs = channel.epg_data.programs.filter(
-                        end_time__gte=now
+                        end_time__gte=lookback_cutoff
                     ).order_by('id')
 
                 # Process programs in chunks to avoid cursor timeout issues
@@ -2332,6 +2347,9 @@ def xc_get_epg(request, user, short=False):
     channel_num_int = channel_num_map.get(channel.id, int(channel.channel_number))
 
     limit = int(request.GET.get('limit', 4))
+    user_custom = user.custom_properties or {}
+    prev_days = max(0, min(int(user_custom.get('epg_prev_days', 0)), 30))
+    lookback_cutoff = django_timezone.now() - timedelta(days=prev_days)
     if channel.epg_data:
         # Check if this is a dummy EPG that generates on-demand
         if channel.epg_data.epg_source and channel.epg_data.epg_source.source_type == 'dummy':
@@ -2346,21 +2364,21 @@ def xc_get_epg(request, user, short=False):
                 # Has stored programs, use them
                 if short == False:
                     programs = channel.epg_data.programs.filter(
-                        end_time__gt=django_timezone.now()
+                        end_time__gt=lookback_cutoff
                     ).order_by('start_time')
                 else:
                     programs = channel.epg_data.programs.filter(
-                        end_time__gt=django_timezone.now()
+                        end_time__gt=lookback_cutoff
                     ).order_by('start_time')[:limit]
         else:
             # Regular EPG with stored programs
             if short == False:
                 programs = channel.epg_data.programs.filter(
-                    end_time__gt=django_timezone.now()
+                    end_time__gt=lookback_cutoff
                 ).order_by('start_time')
             else:
                 programs = channel.epg_data.programs.filter(
-                        end_time__gt=django_timezone.now()
+                        end_time__gt=lookback_cutoff
                     ).order_by('start_time')[:limit]
     else:
         # No EPG data assigned, generate default dummy
