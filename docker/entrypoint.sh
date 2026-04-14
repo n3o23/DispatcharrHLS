@@ -80,7 +80,15 @@ if [[ "${DISPATCHARR_ENV:-}" == "modular" && "${POSTGRES_SSL:-}" == "true" ]]; t
 else
     export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-secret}"
 fi
-export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+export DISPATCHARR_ENV=${DISPATCHARR_ENV:-aio}
+if [[ "$DISPATCHARR_ENV" == "aio" ]]; then
+    # Use Unix socket for loopback values (unset, localhost, 127.0.0.1)
+    if [[ -z "$POSTGRES_HOST" || "$POSTGRES_HOST" == "localhost" || "$POSTGRES_HOST" == "127.0.0.1" ]]; then
+        export POSTGRES_HOST=/var/run/postgresql
+    fi
+else
+    export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+fi
 export POSTGRES_PORT=${POSTGRES_PORT:-5432}
 export PG_VERSION=$(ls /usr/lib/postgresql/ | sort -V | tail -n 1)
 export PG_BINDIR="/usr/lib/postgresql/${PG_VERSION}/bin"
