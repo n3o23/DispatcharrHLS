@@ -1,8 +1,8 @@
-import ipaddress
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidden, StreamingHttpResponse
 from rest_framework.response import Response
 from django.urls import reverse
-from apps.channels.models import Channel, ChannelProfile, ChannelGroup
+from apps.channels.models import Channel, ChannelProfile, ChannelGroup, Stream
+from django.db.models import Prefetch
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from apps.epg.models import ProgramData
@@ -11,9 +11,8 @@ from dispatcharr.utils import network_access_allowed
 from django.utils import timezone as django_timezone
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
-import html  # Add this import for XML escaping
-import json  # Add this import for JSON parsing
-import time  # Add this import for keep-alive delays
+import html
+import time
 from tzlocal import get_localzone
 from urllib.parse import urlparse
 import base64
@@ -175,6 +174,12 @@ def generate_m3u(request, profile_name=None, user=None):
     # Check if direct stream URLs should be used instead of proxy
     use_direct_urls = request.GET.get('direct', 'false').lower() == 'true'
 
+    # Prefetch streams only when direct URLs are requested (avoids N+1 per channel)
+    if use_direct_urls:
+        channels = channels.prefetch_related(
+            Prefetch('streams', queryset=Stream.objects.order_by('channelstream__order'))
+        )
+
     # Get the source to use for tvg-id value
     # Options: 'channel_number' (default), 'tvg_id', 'gracenote'
     tvg_id_source = request.GET.get('tvg_id_source', 'channel_number').lower()
@@ -262,7 +267,8 @@ def generate_m3u(request, profile_name=None, user=None):
             stream_url = f"{base_url}/live/{xc_username}/{xc_password}/{channel.id}"
         elif use_direct_urls:
             # Try to get the first stream's direct URL
-            first_stream = channel.streams.order_by('channelstream__order').first()
+            all_streams = channel.streams.all()
+            first_stream = all_streams[0] if all_streams else None
             if first_stream and first_stream.url:
                 # Use the direct stream URL
                 stream_url = first_stream.url
@@ -2253,7 +2259,7 @@ def xc_get_epg(request, user, short=False):
             # Hide adult content if user preference is set
             if (user.custom_properties or {}).get('hide_adult_content', False):
                 filters["is_adult"] = False
-            channel = Channel.objects.filter(**filters).first()
+            channel = Channel.objects.filter(**filters).select_related('epg_data__epg_source').first()
         else:
             # User has specific limited profiles assigned
             filters = {
@@ -2265,12 +2271,12 @@ def xc_get_epg(request, user, short=False):
             # Hide adult content if user preference is set
             if (user.custom_properties or {}).get('hide_adult_content', False):
                 filters["is_adult"] = False
-            channel = Channel.objects.filter(**filters).distinct().first()
+            channel = Channel.objects.filter(**filters).select_related('epg_data__epg_source').distinct().first()
 
         if not channel:
             raise Http404()
     else:
-        channel = get_object_or_404(Channel, id=channel_id)
+        channel = get_object_or_404(Channel.objects.select_related('epg_data__epg_source'), id=channel_id)
 
     if not channel:
         raise Http404()

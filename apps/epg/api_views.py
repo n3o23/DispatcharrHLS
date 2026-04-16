@@ -175,7 +175,7 @@ class EPGGridAPIView(APIView):
         # Get channels with custom dummy EPG sources (generate on-demand with patterns)
         channels_with_custom_dummy = Channel.objects.filter(
             epg_data__epg_source__source_type='dummy'
-        ).distinct()
+        ).select_related('epg_data__epg_source').distinct()
 
         # Log what we found
         without_count = channels_without_epg.count()
