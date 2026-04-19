@@ -1,17 +1,14 @@
 name: Build App Image
 
-# Builds the application image (frontend + Django app layered on top of the
-# base image) and pushes it to GHCR.
+# Builds the all-in-one (AIO) application image and pushes it to GHCR.
 #
-#   dev  branch  →  ghcr.io/<owner>/<repo>:dev
 #   main branch  →  ghcr.io/<owner>/<repo>:latest
 #
-# This workflow does NOT rebuild the heavy base layer. It pulls the existing
-# :base or :base-dev image from GHCR. Only run build-base.yml when you change
-# DispatcharrBase or pyproject.toml.
+# The base image (DispatcharrBase) must be built separately by running
+# docker buildx build -f docker/DispatcharrBase ... locally or via workflow_dispatch.
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
     paths-ignore:
       - '**.md'
       - 'docker/DispatcharrBase'
@@ -45,7 +42,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Derive image name, tags, and base tag
+      - name: Derive image name and tags
         id: meta
         run: |
           REPO="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
@@ -55,17 +52,7 @@ jobs:
           SHA_SHORT="${{ github.sha }}"
           SHA_SHORT="${SHA_SHORT:0:7}"
 
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            APP_TAG="latest"
-            BASE_TAG="base"
-          else
-            APP_TAG="dev"
-            BASE_TAG="base-dev"
-          fi
-
           echo "image=${IMAGE}"         >> $GITHUB_OUTPUT
-          echo "app_tag=${APP_TAG}"     >> $GITHUB_OUTPUT
-          echo "base_tag=${BASE_TAG}"   >> $GITHUB_OUTPUT
           echo "repo_owner=${OWNER}"    >> $GITHUB_OUTPUT
           echo "repo_name=${REPO_NAME}" >> $GITHUB_OUTPUT
           echo "sha_short=${SHA_SHORT}" >> $GITHUB_OUTPUT
@@ -82,12 +69,12 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.app_tag }}
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.sha_short }}
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ steps.ts.outputs.timestamp }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
             REPO_OWNER=${{ steps.meta.outputs.repo_owner }}
             REPO_NAME=${{ steps.meta.outputs.repo_name }}
-            BASE_TAG=${{ steps.meta.outputs.base_tag }}
+            BASE_TAG=base
             TIMESTAMP=${{ steps.ts.outputs.timestamp }}

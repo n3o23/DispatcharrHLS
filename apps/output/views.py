@@ -73,6 +73,83 @@ def m3u_endpoint(request, profile_name=None, user=None):
 
     return generate_m3u(request, profile_name, user)
 
+@csrf_exempt
+@require_http_methods(["GET", "HEAD"])
+def hls_m3u_endpoint(request, profile_name=None, user=None):
+    """
+    Generate an M3U playlist whose stream URLs point to the HLS proxy output
+    (/proxy/hls/stream/<channel_uuid>) instead of the TS proxy.
+
+    Supports the same ?profile_name= and user-auth flow as m3u_endpoint.
+    Channels whose source stream is already HLS will be proxied natively;
+    all others will be transcoded to HLS output by the proxy layer.
+    """
+    logger.debug("hls_m3u_endpoint called: profile=%s", profile_name)
+    if not network_access_allowed(request, "M3U_EPG"):
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    if request.method == "HEAD":
+        response = HttpResponse(content_type="audio/x-mpegurl")
+        response["Content-Disposition"] = 'attachment; filename="channels_hls.m3u"'
+        return response
+
+    # Resolve channel queryset (same logic as generate_m3u)
+    if user is not None:
+        if user.user_level < 10:
+            channels = Channel.objects.filter(
+                user_level__lte=user.user_level
+            ).select_related("channel_group", "logo").order_by("channel_number")
+        else:
+            channels = Channel.objects.filter(
+                user_level__lte=user.user_level
+            ).select_related("channel_group", "logo").order_by("channel_number")
+    elif profile_name is not None:
+        try:
+            channel_profile = ChannelProfile.objects.get(name=profile_name)
+        except ChannelProfile.DoesNotExist:
+            raise Http404(f"Channel profile '{profile_name}' not found")
+        channels = Channel.objects.filter(
+            channelprofilemembership__channel_profile=channel_profile,
+            channelprofilemembership__enabled=True,
+        ).select_related("channel_group", "logo").order_by("channel_number")
+    else:
+        channels = Channel.objects.select_related("channel_group", "logo").order_by("channel_number")
+
+    epg_url = build_absolute_uri_with_port(
+        request,
+        reverse("output:epg_endpoint", args=[profile_name]) if profile_name
+        else reverse("output:epg_endpoint"),
+    )
+    m3u_content = f'#EXTM3U x-tvg-url="{epg_url}" url-tvg="{epg_url}"\n'
+
+    for channel in channels:
+        group_title = channel.channel_group.name if channel.channel_group else "Default"
+        ch_num = (
+            int(channel.channel_number)
+            if channel.channel_number is not None and channel.channel_number == int(channel.channel_number)
+            else (channel.channel_number or "")
+        )
+        tvg_logo = ""
+        if channel.logo:
+            tvg_logo = build_absolute_uri_with_port(
+                request, reverse("api:channels:logo-cache", args=[channel.logo.id])
+            )
+        extinf = (
+            f'#EXTINF:-1 tvg-id="{ch_num}" tvg-name="{channel.name}" '
+            f'tvg-logo="{tvg_logo}" tvg-chno="{ch_num}" '
+            f'group-title="{group_title}",{channel.name}\n'
+        )
+        # HLS proxy URL — the proxy will initialize the channel on first request
+        stream_url = build_absolute_uri_with_port(
+            request, f"/proxy/hls/stream/{channel.uuid}"
+        )
+        m3u_content += extinf + stream_url + "\n"
+
+    response = HttpResponse(m3u_content, content_type="audio/x-mpegurl")
+    response["Content-Disposition"] = 'attachment; filename="channels_hls.m3u"'
+    return response
+
+
 def epg_endpoint(request, profile_name=None, user=None):
     logger.debug("epg_endpoint called: method=%s, profile=%s", request.method, profile_name)
     if not network_access_allowed(request, "M3U_EPG"):

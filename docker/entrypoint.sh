@@ -280,36 +280,17 @@ else
     check_external_postgres_version || exit 1
 fi
 
-# Wait for Redis to be ready and flush stale state.
-# In modular mode Redis is external — call wait_for_redis.py here
-# because uWSGI's exec-pre runs under 'su -' which strips env vars
-# (DISPATCHARR_ENV, REDIS_HOST, etc.).
-# In AIO mode Redis is started by uWSGI (attach-daemon), so the
-# exec-pre in uwsgi.ini handles the wait + flush there instead.
-if [[ "$DISPATCHARR_ENV" == "modular" ]]; then
-    echo "🔗 Modular mode: Using external Redis at ${REDIS_HOST}:${REDIS_PORT}"
-    echo_with_timestamp "Waiting for Redis to be ready..."
-    python3 /app/scripts/wait_for_redis.py
-    echo "✅ Redis is ready"
-fi
+# Redis is started by uWSGI (attach-daemon) in AIO mode.
+# wait_for_redis.py runs via exec-pre in uwsgi.ini.
 
 # Ensure database encoding is UTF8 (handles both internal and external databases)
 ensure_utf8_encoding
 
-if [[ "$DISPATCHARR_ENV" = "dev" ]]; then
-    . /app/docker/init/99-init-dev.sh
-    echo "Starting frontend dev environment"
-    su - "$POSTGRES_USER" -c "cd /app/frontend && npm run dev &"
-    npm_pid=$(pgrep vite | sort | head -n1)
-    echo "✅ vite started with PID $npm_pid"
-    if [ -n "$npm_pid" ]; then pids+=("$npm_pid"); pid_names[$npm_pid]="vite"; fi
-else
-    echo "🚀 Starting nginx..."
-    nginx
-    nginx_pid=$(pgrep nginx | sort | head -n1)
-    echo "✅ nginx started with PID $nginx_pid"
-    if [ -n "$nginx_pid" ]; then pids+=("$nginx_pid"); pid_names[$nginx_pid]="nginx"; fi
-fi
+echo "🚀 Starting nginx..."
+nginx
+nginx_pid=$(pgrep nginx | sort | head -n1)
+echo "✅ nginx started with PID $nginx_pid"
+if [ -n "$nginx_pid" ]; then pids+=("$nginx_pid"); pid_names[$nginx_pid]="nginx"; fi
 
 
 # --- NumPy version switching for legacy hardware ---
@@ -328,20 +309,8 @@ fi
 su - "$POSTGRES_USER" -c "cd /app && python manage.py migrate --noinput"
 su - "$POSTGRES_USER" -c "cd /app && python manage.py collectstatic --noinput"
 
-# Select proper uwsgi config based on environment
-if [ "$DISPATCHARR_ENV" = "dev" ] && [ "$DISPATCHARR_DEBUG" != "true" ]; then
-    echo "🚀 Starting uwsgi in dev mode..."
-    uwsgi_file="/app/docker/uwsgi.dev.ini"
-elif [ "$DISPATCHARR_DEBUG" = "true" ]; then
-    echo "🚀 Starting uwsgi in debug mode..."
-    uwsgi_file="/app/docker/uwsgi.debug.ini"
-elif [ "$DISPATCHARR_ENV" = "modular" ]; then
-    echo "🚀 Starting uwsgi in modular mode..."
-    uwsgi_file="/app/docker/uwsgi.modular.ini"
-else
-    echo "🚀 Starting uwsgi in production mode..."
-    uwsgi_file="/app/docker/uwsgi.ini"
-fi
+echo "🚀 Starting uwsgi in AIO mode..."
+uwsgi_file="/app/docker/uwsgi.ini"
 
 # Set base uwsgi args
 uwsgi_args="--ini $uwsgi_file"
