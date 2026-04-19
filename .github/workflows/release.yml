@@ -1,237 +1,176 @@
-name: Create Release
+name: Release
 
+# Manually triggered from the Actions tab.
+# Bumps version.py, commits + tags, builds the production Docker image,
+# and creates a GitHub Release with auto-generated notes.
 on:
   workflow_dispatch:
     inputs:
-      version_type:
-        description: 'Type of version increment'
+      version_bump:
+        description: 'Version bump type'
         required: true
         default: 'patch'
         type: choice
         options:
-          - major
-          - minor
-          - patch
+          - patch   # 1.0.0 → 1.0.1  (bug fixes)
+          - minor   # 1.0.0 → 1.1.0  (new features, backwards compatible)
+          - major   # 1.0.0 → 2.0.0  (breaking changes)
+      release_notes:
+        description: 'Additional release notes (optional)'
+        required: false
+        type: string
 
-# Add explicit permissions for the workflow
 permissions:
-  contents: write # For managing releases and pushing tags
-  packages: write # For publishing to GitHub Container Registry
+  contents: write   # push commits, create tags and releases
+  packages: write   # push to GHCR
 
 jobs:
+  # ── 1. Bump version, commit, tag ────────────────────────────────────────────
   prepare:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.update_version.outputs.new_version }}
-      repo_owner: ${{ steps.meta.outputs.repo_owner }}
-      repo_name: ${{ steps.meta.outputs.repo_name }}
-      timestamp: ${{ steps.timestamp.outputs.timestamp }}
+      new_version: ${{ steps.bump.outputs.new_version }}
+      repo_owner:  ${{ steps.meta.outputs.repo_owner }}
+      repo_name:   ${{ steps.meta.outputs.repo_name }}
+      timestamp:   ${{ steps.ts.outputs.timestamp }}
+
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout main
+        uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git
+      - name: Configure git
         run: |
-          git config user.name "GitHub Actions"
+          git config user.name  "GitHub Actions"
           git config user.email "actions@github.com"
 
-      - name: Update Version
-        id: update_version
+      - name: Bump version in version.py
+        id: bump
         run: |
-          python scripts/bump_version.py ${{ github.event.inputs.version_type }}
-          NEW_VERSION=$(python -c "import version; print(f'{version.__version__}')")
-          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          CURRENT=$(python -c "import version; print(version.__version__)")
+          echo "Current version: ${CURRENT}"
 
-      - name: Update Changelog
-        run: |
-          python scripts/update_changelog.py ${{ steps.update_version.outputs.new_version }}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT}"
+          case "${{ github.event.inputs.version_bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          echo "New version: ${NEW}"
 
-      - name: Set repository metadata
+          sed -i "s/__version__ = '.*'/__version__ = '${NEW}'/" version.py
+          python -c "import version; assert version.__version__ == '${NEW}', 'version.py update failed'"
+
+          echo "new_version=${NEW}" >> $GITHUB_OUTPUT
+
+      - name: Set image metadata
         id: meta
         run: |
-          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+          echo "repo_owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "repo_name=$(echo '${{ github.repository }}' | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')"   >> $GITHUB_OUTPUT
 
-          REPO_NAME=$(echo "${{ github.repository }}" | cut -d '/' -f 2 | tr '[:upper:]' '[:lower:]')
-          echo "repo_name=${REPO_NAME}" >> $GITHUB_OUTPUT
+      - name: Generate build timestamp
+        id: ts
+        run: echo "timestamp=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Generate timestamp for build
-        id: timestamp
+      - name: Commit and tag
         run: |
-          TIMESTAMP=$(date -u +'%Y%m%d%H%M%S')
-          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
-
-      - name: Commit and Tag
-        run: |
-          git add version.py CHANGELOG.md
-          git commit -m "Release v${{ steps.update_version.outputs.new_version }}"
-          git tag -a "v${{ steps.update_version.outputs.new_version }}" -m "Release v${{ steps.update_version.outputs.new_version }}"
+          git add version.py
+          git commit -m "Release v${{ steps.bump.outputs.new_version }}"
+          git tag -a "v${{ steps.bump.outputs.new_version }}" \
+                 -m "Release v${{ steps.bump.outputs.new_version }}"
           git push origin main --tags
 
+  # ── 2. Build and push production Docker image ───────────────────────────────
   docker:
-    needs: [prepare]
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [amd64, arm64]
-        include:
-          - platform: amd64
-            runner: ubuntu-24.04
-          - platform: arm64
-            runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main
+    needs: prepare
+    runs-on: ubuntu-latest
 
-      - name: Configure Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.prepare.outputs.new_version }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: |
-            ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}
-            docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ needs.prepare.outputs.repo_name }}
-          labels: |
-            org.opencontainers.image.title=${{ needs.prepare.outputs.repo_name }}
-            org.opencontainers.image.description=Your ultimate IPTV & stream Management companion.
-            org.opencontainers.image.url=https://github.com/${{ github.repository }}
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ needs.prepare.outputs.new_version }}
-            org.opencontainers.image.created=${{ needs.prepare.outputs.timestamp }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.licenses=See repository
-            org.opencontainers.image.documentation=https://dispatcharr.github.io/Dispatcharr-Docs/
-            org.opencontainers.image.vendor=${{ needs.prepare.outputs.repo_owner }}
-            org.opencontainers.image.authors=${{ github.actor }}
-            maintainer=${{ github.actor }}
-            build_version=Dispatcharr version: ${{ needs.prepare.outputs.new_version }} Build date: ${{ needs.prepare.outputs.timestamp }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v7
+      - name: Build and push release image
+        uses: docker/build-push-action@v6
         with:
           context: .
+          file: docker/Dockerfile
           push: true
-          platforms: linux/${{ matrix.platform }}
+          platforms: linux/amd64
           tags: |
-            ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}:latest-${{ matrix.platform }}
-            ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}:${{ needs.prepare.outputs.new_version }}-${{ matrix.platform }}
-            docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ needs.prepare.outputs.repo_name }}:latest-${{ matrix.platform }}
-            docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ needs.prepare.outputs.repo_name }}:${{ needs.prepare.outputs.new_version }}-${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
+            ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}:latest
+            ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}:v${{ needs.prepare.outputs.new_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             REPO_OWNER=${{ needs.prepare.outputs.repo_owner }}
             REPO_NAME=${{ needs.prepare.outputs.repo_name }}
-            BRANCH=${{ github.ref_name }}
-            REPO_URL=https://github.com/${{ github.repository }}
-          file: ./docker/Dockerfile
+            BASE_TAG=base
+            TIMESTAMP=${{ needs.prepare.outputs.timestamp }}
 
-  create-manifest:
+  # ── 3. Create GitHub Release ─────────────────────────────────────────────────
+  release:
     needs: [prepare, docker]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          ref: v${{ needs.prepare.outputs.new_version }}
+          fetch-depth: 0
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create multi-arch manifest tags
+      - name: Build release body
+        id: notes
         run: |
-          set -euo pipefail
-          OWNER=${{ needs.prepare.outputs.repo_owner }}
-          REPO=${{ needs.prepare.outputs.repo_name }}
-          VERSION=${{ needs.prepare.outputs.new_version }}
-          TIMESTAMP=${{ needs.prepare.outputs.timestamp }}
+          VERSION="v${{ needs.prepare.outputs.new_version }}"
+          IMAGE="ghcr.io/${{ needs.prepare.outputs.repo_owner }}/${{ needs.prepare.outputs.repo_name }}"
 
-          echo "Creating multi-arch manifest for ${OWNER}/${REPO}"
+          BODY="## Docker image
 
-          # GitHub Container Registry manifests
-          # Create one manifest with both latest and version tags
-          docker buildx imagetools create \
-            --annotation "index:org.opencontainers.image.title=${{ needs.prepare.outputs.repo_name }}" \
-            --annotation "index:org.opencontainers.image.description=Your ultimate IPTV & stream Management companion." \
-            --annotation "index:org.opencontainers.image.url=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.version=${VERSION}" \
-            --annotation "index:org.opencontainers.image.created=${TIMESTAMP}" \
-            --annotation "index:org.opencontainers.image.revision=${{ github.sha }}" \
-            --annotation "index:org.opencontainers.image.licenses=See repository" \
-            --annotation "index:org.opencontainers.image.documentation=https://dispatcharr.github.io/Dispatcharr-Docs/" \
-            --annotation "index:org.opencontainers.image.vendor=${OWNER}" \
-            --annotation "index:org.opencontainers.image.authors=${{ github.actor }}" \
-            --annotation "index:maintainer=${{ github.actor }}" \
-            --annotation "index:build_version=Dispatcharr version: ${VERSION} Build date: ${TIMESTAMP}" \
-            --tag ghcr.io/${OWNER}/${REPO}:latest \
-            --tag ghcr.io/${OWNER}/${REPO}:${VERSION} \
-            ghcr.io/${OWNER}/${REPO}:${VERSION}-amd64 ghcr.io/${OWNER}/${REPO}:${VERSION}-arm64
+          \`\`\`yaml
+          image: ${IMAGE}:${VERSION}
+          \`\`\`
+          or always-latest:
+          \`\`\`yaml
+          image: ${IMAGE}:latest
+          \`\`\`"
 
-          # Docker Hub manifests
-          # Create one manifest with both latest and version tags
-          docker buildx imagetools create \
-            --annotation "index:org.opencontainers.image.title=${{ needs.prepare.outputs.repo_name }}" \
-            --annotation "index:org.opencontainers.image.description=Your ultimate IPTV & stream Management companion." \
-            --annotation "index:org.opencontainers.image.url=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-            --annotation "index:org.opencontainers.image.version=${VERSION}" \
-            --annotation "index:org.opencontainers.image.created=${TIMESTAMP}" \
-            --annotation "index:org.opencontainers.image.revision=${{ github.sha }}" \
-            --annotation "index:org.opencontainers.image.licenses=See repository" \
-            --annotation "index:org.opencontainers.image.documentation=https://dispatcharr.github.io/Dispatcharr-Docs/" \
-            --annotation "index:org.opencontainers.image.vendor=${OWNER}" \
-            --annotation "index:org.opencontainers.image.authors=${{ github.actor }}" \
-            --annotation "index:maintainer=${{ github.actor }}" \
-            --annotation "index:build_version=Dispatcharr version: ${VERSION} Build date: ${TIMESTAMP}" \
-            --tag docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${REPO}:latest \
-            --tag docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${REPO}:${VERSION} \
-            docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${REPO}:${VERSION}-amd64 docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${REPO}:${VERSION}-arm64
+          if [[ -n "${{ github.event.inputs.release_notes }}" ]]; then
+            BODY="${BODY}
 
-  create-release:
-    needs: [prepare, create-manifest]
-    runs-on: ubuntu-24.04
-    steps:
+          ## Notes
+
+          ${{ github.event.inputs.release_notes }}"
+          fi
+
+          # Write to file to avoid quoting issues with multiline strings
+          echo "${BODY}" > /tmp/release_body.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.prepare.outputs.new_version }}
-          name: Release v${{ needs.prepare.outputs.new_version }}
+          name: v${{ needs.prepare.outputs.new_version }}
+          body_path: /tmp/release_body.md
+          generate_release_notes: true   # auto-appends PR/commit list since last tag
           draft: false
           prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

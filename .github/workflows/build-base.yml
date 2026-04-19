@@ -1,0 +1,70 @@
+name: Build Base Image
+
+# Rebuilds the heavy DispatcharrBase layer (Python venv, Playwright/Chromium,
+# ffmpeg, PostgreSQL, Redis). Only runs when the files that affect it change —
+# this build takes ~15 min and produces a ~4 GB image.
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'docker/DispatcharrBase'
+      - 'pyproject.toml'
+      - 'version.py'
+      - 'README.md'
+  workflow_dispatch:
+    # Allow a manual trigger from the Actions tab whenever needed
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-base:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Derive image name and tag
+        id: meta
+        run: |
+          IMAGE="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          echo "image=${IMAGE}" >> $GITHUB_OUTPUT
+
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "tag=base" >> $GITHUB_OUTPUT
+          else
+            echo "tag=base-dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate build timestamp
+        id: ts
+        run: echo "timestamp=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Build and push base image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/DispatcharrBase
+          push: true
+          # amd64 only — arm64 Playwright/Chromium adds ~30 extra minutes.
+          # Add linux/arm64 here and a self-hosted ARM runner if you need it.
+          platforms: linux/amd64
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}-${{ steps.ts.outputs.timestamp }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            TIMESTAMP=${{ steps.ts.outputs.timestamp }}

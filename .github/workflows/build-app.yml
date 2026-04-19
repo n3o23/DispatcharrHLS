@@ -1,0 +1,93 @@
+name: Build App Image
+
+# Builds the application image (frontend + Django app layered on top of the
+# base image) and pushes it to GHCR.
+#
+#   dev  branch  →  ghcr.io/<owner>/<repo>:dev
+#   main branch  →  ghcr.io/<owner>/<repo>:latest
+#
+# This workflow does NOT rebuild the heavy base layer. It pulls the existing
+# :base or :base-dev image from GHCR. Only run build-base.yml when you change
+# DispatcharrBase or pyproject.toml.
+on:
+  push:
+    branches: [main, dev]
+    paths-ignore:
+      - '**.md'
+      - 'docker/DispatcharrBase'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify build context
+        run: |
+          test -d frontend || (echo "ERROR: frontend/ directory missing" && exit 1)
+          test -f frontend/package.json || (echo "ERROR: frontend/package.json missing" && exit 1)
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Derive image name, tags, and base tag
+        id: meta
+        run: |
+          REPO="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${REPO}"
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          REPO_NAME="$(echo '${{ github.repository }}' | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')"
+          SHA_SHORT="${{ github.sha }}"
+          SHA_SHORT="${SHA_SHORT:0:7}"
+
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            APP_TAG="latest"
+            BASE_TAG="base"
+          else
+            APP_TAG="dev"
+            BASE_TAG="base-dev"
+          fi
+
+          echo "image=${IMAGE}"         >> $GITHUB_OUTPUT
+          echo "app_tag=${APP_TAG}"     >> $GITHUB_OUTPUT
+          echo "base_tag=${BASE_TAG}"   >> $GITHUB_OUTPUT
+          echo "repo_owner=${OWNER}"    >> $GITHUB_OUTPUT
+          echo "repo_name=${REPO_NAME}" >> $GITHUB_OUTPUT
+          echo "sha_short=${SHA_SHORT}" >> $GITHUB_OUTPUT
+
+      - name: Generate build timestamp
+        id: ts
+        run: echo "timestamp=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Build and push app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.app_tag }}
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            REPO_OWNER=${{ steps.meta.outputs.repo_owner }}
+            REPO_NAME=${{ steps.meta.outputs.repo_name }}
+            BASE_TAG=${{ steps.meta.outputs.base_tag }}
+            TIMESTAMP=${{ steps.ts.outputs.timestamp }}
