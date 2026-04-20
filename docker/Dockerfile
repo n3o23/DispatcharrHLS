@@ -35,11 +35,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Playwright and Chromium into the virtualenv
+# Install Playwright and Chromium into a shared location accessible by all users
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN /dispatcharrpy/bin/python -m ensurepip && \
     /dispatcharrpy/bin/python -m pip install playwright && \
     /dispatcharrpy/bin/python -m playwright install chromium && \
-    /dispatcharrpy/bin/python -m playwright install-deps chromium
+    /dispatcharrpy/bin/python -m playwright install-deps chromium && \
+    chmod -R 755 /ms-playwright
 
 # Copy application code
 COPY . /app
