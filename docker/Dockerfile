@@ -36,9 +36,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Playwright and Chromium (using full venv path to ensure pip is found)
-RUN /dispatcharrpy/bin/pip install playwright && \
-    /dispatcharrpy/bin/playwright install chromium && \
-    /dispatcharrpy/bin/playwright install-deps chromium
+RUN find / -name "pip*" -type f 2>/dev/null | grep -v proc | head -20 && \
+    find / -name "python*" -type f 2>/dev/null | grep -v proc | head -20
 
 # Copy application code
 COPY . /app
