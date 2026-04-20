@@ -35,11 +35,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Playwright and Chromium
+# Install Playwright and Chromium into the virtualenv
 RUN /usr/bin/python3.13 -m ensurepip && \
-    /usr/bin/python3.13 -m pip install playwright && \
-    /usr/bin/python3.13 -m playwright install chromium && \
-    /usr/bin/python3.13 -m playwright install-deps chromium
+    /dispatcharrpy/bin/python -m pip install playwright && \
+    /dispatcharrpy/bin/python -m playwright install chromium && \
+    /dispatcharrpy/bin/python -m playwright install-deps chromium
 
 # Copy application code
 COPY . /app
