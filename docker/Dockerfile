@@ -26,6 +26,18 @@ ENV VIRTUAL_ENV=/dispatcharrpy
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /app
 
+# Install system dependencies and Playwright with Chromium
+RUN pip install playwright && \
+    playwright install chromium && \
+    playwright install-deps chromium && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        xvfb \
+        ffmpeg \
+        pulseaudio && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy application code
 COPY . /app
 # Copy nginx configuration
