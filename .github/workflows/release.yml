@@ -63,7 +63,7 @@ jobs:
           echo "New version: ${NEW}"
 
           sed -i "s/__version__ = '.*'/__version__ = '${NEW}'/" version.py
-          python -c "import version; assert version.__version__ == '${NEW}', 'version.py update failed'"
+          grep -q "__version__ = '${NEW}'" version.py || { echo "version.py update failed"; exit 1; }
 
           echo "new_version=${NEW}" >> $GITHUB_OUTPUT
 
