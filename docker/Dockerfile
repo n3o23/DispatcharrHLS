@@ -26,17 +26,19 @@ ENV VIRTUAL_ENV=/dispatcharrpy
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /app
 
-# Install system dependencies and Playwright with Chromium
-RUN pip install playwright && \
-    playwright install chromium && \
-    playwright install-deps chromium && \
-    apt-get update && \
+# Install system dependencies
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         xvfb \
         ffmpeg \
         pulseaudio && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Playwright and Chromium (using full venv path to ensure pip is found)
+RUN /dispatcharrpy/bin/pip install playwright && \
+    /dispatcharrpy/bin/playwright install chromium && \
+    /dispatcharrpy/bin/playwright install-deps chromium
 
 # Copy application code
 COPY . /app
