@@ -16,11 +16,12 @@ cleanup() {
     echo "⛔ Stopping uwsgi workers..."
     pkill -TERM -f uwsgi 2>/dev/null || true
 
-    # Stop celery, daphne, redis - also not tracked in pids[]
-    echo "⛔ Stopping celery, daphne, redis..."
+    # Stop celery, daphne, redis, xvfb - also not tracked in pids[]
+    echo "⛔ Stopping celery, daphne, redis, Xvfb..."
     pkill -TERM -f "celery" 2>/dev/null || true
     pkill -TERM -f "daphne" 2>/dev/null || true
     pkill -TERM -f "redis-server" 2>/dev/null || true
+    pkill -TERM -f "Xvfb" 2>/dev/null || true
 
     # Stop tracked processes (postgres, nginx, su/uwsgi wrapper)
     for pid in "${pids[@]}"; do
@@ -308,6 +309,16 @@ fi
 # Run Django commands as non-root user to prevent permission issues
 su - "$POSTGRES_USER" -c "cd /app && python manage.py migrate --noinput"
 su - "$POSTGRES_USER" -c "cd /app && python manage.py collectstatic --noinput"
+
+# Start virtual framebuffer displays for headless browser support (up to 3 simultaneous streams)
+echo "🖥️ Starting Xvfb virtual displays..."
+for _disp in 99 100 101; do
+    Xvfb :${_disp} -screen 0 1280x720x24 -nolisten tcp &
+    _xvfb_pid=$!
+    pids+=("$_xvfb_pid"); pid_names[$_xvfb_pid]="xvfb-:${_disp}"
+    echo "✅ Xvfb :${_disp} started with PID $_xvfb_pid"
+done
+export DISPLAY=:99
 
 echo "🚀 Starting uwsgi in AIO mode..."
 uwsgi_file="/app/docker/uwsgi.ini"
