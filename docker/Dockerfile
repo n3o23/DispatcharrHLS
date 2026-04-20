@@ -35,9 +35,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Playwright and Chromium (using full venv path to ensure pip is found)
-RUN find / -name "pip*" -type f 2>/dev/null | grep -v proc | head -20 && \
-    find / -name "python*" -type f 2>/dev/null | grep -v proc | head -20
+# Install Playwright and Chromium
+RUN /usr/bin/python3.13 -m ensurepip && \
+    /usr/bin/python3.13 -m pip install playwright && \
+    /usr/bin/python3.13 -m playwright install chromium && \
+    /usr/bin/python3.13 -m playwright install-deps chromium
 
 # Copy application code
 COPY . /app
